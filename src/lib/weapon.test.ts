@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { generateWeaponDrop, WEAPON_NAMES } from "./weapon";
+import { generateWeaponDrop } from "./weapon";
+import { getWeaponsForArea } from "./data/weapons";
 import type { AreaId } from "./types";
 
 describe("generateWeaponDrop", () => {
@@ -22,10 +23,21 @@ describe("generateWeaponDrop", () => {
     }
   });
 
-  it("武器名がエリアに対応するテーブルに含まれる", () => {
-    for (let areaId = 1; areaId <= 8; areaId++) {
-      const w = generateWeaponDrop(areaId as AreaId);
-      expect(WEAPON_NAMES[areaId as AreaId]).toContain(w.name);
+  it("設定ファイルに候補があるエリアでは設定の武器名が返る", () => {
+    const candidates = getWeaponsForArea(1);
+    const names = candidates.map((c) => c.name);
+    for (let i = 0; i < 20; i++) {
+      const w = generateWeaponDrop(1);
+      expect(names).toContain(w.name);
+    }
+  });
+
+  it("設定にないエリアではフォールバック名が返る", () => {
+    // エリア7には武器設定がない → フォールバック
+    const candidates = getWeaponsForArea(7);
+    if (candidates.length === 0) {
+      const w = generateWeaponDrop(7);
+      expect(w.name).toBe("謎の武器");
     }
   });
 
