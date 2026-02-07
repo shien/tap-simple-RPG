@@ -1,43 +1,99 @@
 # フェーズ3: 属性・武器・ダメージ計算
 
 ## 目的
-属性相性判定とダメージ計算ロジックを実装する。
+属性相性判定、ダメージ計算、武器ドロップ生成を実装する。
 
 ## 依存
-- フェーズ1（型定義・属性相性マップ）
+- フェーズ1（型定義・定数 — ELEMENT_ADVANTAGE_MAP, DAMAGE_MULTIPLIER, AREAS）
 
 ## 実装ファイル
 - `src/lib/element.ts` — 属性相性判定
 - `src/lib/damage.ts` — ダメージ計算
 - `src/lib/weapon.ts` — 武器生成
+- `src/lib/element.test.ts` — 属性テスト
+- `src/lib/damage.test.ts` — ダメージテスト
+- `src/lib/weapon.test.ts` — 武器テスト
 
-## 関数
+## 関数設計
 
-### getElementAdvantage
-武器属性と敵属性を比較し、相性を返す。
-- `"advantage"` — 有利（×2）
-- `"disadvantage"` — 不利（×0.1）
-- `"neutral"` — 同属性（×1）
+### element.ts
 
-### getElementMultiplier
-相性に応じた倍率を返す。
+#### getElementAdvantage(attacker: Element, defender: Element): ElementAdvantage
+ELEMENT_ADVANTAGE_MAP を参照して相性を返す。
+- fire vs ice → "advantage"
+- fire vs thunder → "disadvantage"
+- fire vs fire → "neutral"
 
-### calculatePlayerDamage
-プレイヤーの攻撃ダメージを計算する。
-- `(ATK + 武器攻撃補正) × 属性倍率`
-- bigintで計算
+#### getElementMultiplier(attacker: Element, defender: Element): number
+相性からDAMAGE_MULTIPLIERを引いて倍率を返す。
+- advantage → 2
+- disadvantage → 0.1
+- neutral → 1
 
-### generateWeaponDrop
+### damage.ts
+
+#### calculatePlayerDamage(player: Player, enemy: Enemy): bigint
+プレイヤー→敵へのダメージを計算する。
+- baseDamage = player.atk + player.weapon.attackBonus
+- multiplier = getElementMultiplier(player.weapon.element, enemy.element)
+- damage = bigint(baseDamage * multiplier)
+- 最低1ダメージ保証
+
+bigintとnumber（倍率）の混合計算:
+- multiplier が 2 → baseDamage * 2n
+- multiplier が 0.1 → baseDamage / 10n（切り捨て、最低1n）
+- multiplier が 1 → baseDamage
+
+### weapon.ts
+
+#### generateWeaponDrop(areaId: AreaId): Weapon
 敵撃破時にドロップする武器を生成する。
-- エリアに応じた攻撃補正値
-- ランダム属性
+- name: エリアに応じた武器名テーブルから選択
+- element: ランダム（fire/ice/thunder 均等）
+- attackBonus: `BigInt(Math.floor(areaConfig.rewardMultiplier * 5 * (0.8 + Math.random() * 0.4)))`
+  - エリアのrewardMultiplierに比例
+  - ±20%のランダム幅
 
-## テスト
-- 火＞氷、氷＞雷、雷＞火が正しく判定されること
-- 同属性でneutralが返ること
-- 有利で×2、不利で×0.1、同属性で×1のダメージ倍率
-- ダメージ計算がbigintで正しく動作すること
-- 武器生成が正しい属性・補正値を持つこと
+武器名テーブル:
+| エリア | 武器名候補 |
+|--------|-----------|
+| 1 草原 | 木の剣, 石の斧 |
+| 2 山間部 | 鉄の剣, 戦斧 |
+| 3 洞窟 | 鋼の剣, つるはし |
+| 4 呪われた森 | 呪剣, 妖刀 |
+| 5 亡者の湿地 | 怨嗟の刃, 骸骨の杖 |
+| 6 黒曜の火山 | 溶岩の剣, 炎の槍 |
+| 7 魔界の門前 | 魔剣, 闇の大鎌 |
+| 8 魔王城 | 聖剣, 伝説の杖 |
+
+## テスト計画
+
+### element.test.ts
+- 火→氷: advantage
+- 氷→雷: advantage
+- 雷→火: advantage
+- 火→雷: disadvantage
+- 氷→火: disadvantage
+- 雷→氷: disadvantage
+- 同属性3パターン: neutral
+- 有利倍率 = 2
+- 不利倍率 = 0.1
+- 同属性倍率 = 1
+
+### damage.test.ts
+- 同属性: ATK=100n, bonus=50n → damage=150n
+- 有利: ATK=100n, bonus=50n → damage=300n
+- 不利: ATK=100n, bonus=50n → damage=15n (150/10)
+- 不利で極小: ATK=5n, bonus=0n → damage=1n（最低保証）
+- bonus=0n のとき ATK のみで計算される
+
+### weapon.test.ts
+- 生成された武器がname, element, attackBonusを持つ
+- elementがfire/ice/thunderのいずれか
+- attackBonusが0n以上
+- エリア1よりエリア8の方がattackBonusが大きい（統計的に）
+- 武器名がエリアに対応するテーブルに含まれる
 
 ## 完了条件
-- 全テストが通る
+- 全テスト通過
+- `pnpm run build` 成功
