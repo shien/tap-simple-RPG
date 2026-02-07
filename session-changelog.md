@@ -163,3 +163,68 @@
 - 武器名がエリア対応テーブルに含まれる
 - エリア8 > エリア1のattackBonus（統計的検証）
 - 全8エリアでの武器生成確認
+
+---
+
+## モンスター・武器設定ファイル導入（2026-02-07）
+
+### ブランチ
+`claude/monster-weapon-config-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/lib/data/monsters.ts` | モンスター設定データ（5体）+ エリア絞り込み関数 |
+| `src/lib/data/weapons.ts` | 武器設定データ（5本）+ エリア絞り込み関数 |
+| `src/lib/data/monsters.test.ts` | モンスター設定テスト（9件） |
+| `src/lib/data/weapons.test.ts` | 武器設定テスト（6件） |
+| `plan/monster-weapon-config.md` | 計画書 |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `src/lib/types.ts` | MonsterConfig / WeaponConfig 型追加 |
+| `src/lib/weapon.ts` | ハードコード武器名 → 設定ファイル参照に変更 |
+| `src/lib/weapon.test.ts` | 設定ファイルベースのテストに書き換え |
+
+### 型追加
+- `MonsterConfig` — id, name, description, areaIds, element, isBoss
+- `WeaponConfig` — id, name, description, areaIds, element
+
+### 暫定データ
+
+#### モンスター（5体）
+| id | name | element | areaIds | isBoss |
+|----|------|---------|---------|--------|
+| slime | スライム | ice | [1] | false |
+| goblin | ゴブリン | fire | [1,2] | false |
+| golem | ゴーレム | thunder | [2,3] | false |
+| dragon_pup | ドラゴンパピー | fire | [3,4] | false |
+| grassland_king | 草原の王 | thunder | [1] | true |
+
+#### 武器（5本）
+| id | name | element | areaIds |
+|----|------|---------|---------|
+| wooden_sword | 木の剣 | fire | [1] |
+| stone_axe | 石の斧 | thunder | [1] |
+| iron_sword | 鉄の剣 | fire | [2] |
+| ice_staff | 氷の杖 | ice | [2,3] |
+| steel_blade | 鋼の刃 | thunder | [3] |
+
+### テスト結果
+```
+91 passed (constants: 25, player: 27, element: 12, damage: 5, weapon: 7, monsters: 9, weapons: 6)
+```
+
+### テスト内容
+- モンスター/武器が5件以上
+- 必須フィールドの存在確認
+- areaIdsの範囲チェック（1〜8）
+- id重複なし
+- ボスモンスター1体以上
+- getMonstersForArea / getBossForArea のエリア絞り込み
+- getWeaponsForArea のエリア絞り込み
+- generateWeaponDrop が設定ファイルの武器名を返す
+- 設定にないエリアのフォールバック動作

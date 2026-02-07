@@ -55,6 +55,25 @@ export type AreaConfig = {
   individualVariation: { min: number; max: number };
 };
 
+// === モンスター設定 ===
+export type MonsterConfig = {
+  id: string;
+  name: string;
+  description: string;
+  areaIds: AreaId[];
+  element: Element;
+  isBoss: boolean;
+};
+
+// === 武器設定 ===
+export type WeaponConfig = {
+  id: string;
+  name: string;
+  description: string;
+  areaIds: AreaId[];
+  element: Element;
+};
+
 // === ゲーム状態 ===
 export type GameState = {
   player: Player;
