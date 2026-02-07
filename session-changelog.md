@@ -109,3 +109,57 @@
 - HP回復とMaxHP上限
 - ダメージとHP0下限
 - isDead判定
+
+---
+
+## フェーズ3: 属性・武器・ダメージ計算（2026-02-07）
+
+### ブランチ
+`claude/phase3-battle-calc-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/lib/element.ts` | 属性相性判定（2関数） |
+| `src/lib/damage.ts` | ダメージ計算（1関数） |
+| `src/lib/weapon.ts` | 武器ドロップ生成（1関数） |
+| `src/lib/element.test.ts` | 属性テスト（12件） |
+| `src/lib/damage.test.ts` | ダメージテスト（5件） |
+| `src/lib/weapon.test.ts` | 武器テスト（6件） |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `plan/phase3-battle-calc.md` | 詳細な関数設計・テスト計画に更新 |
+
+### 関数一覧
+
+#### element.ts
+- `getElementAdvantage(attacker, defender)` — 属性相性判定（advantage/disadvantage/neutral）
+- `getElementMultiplier(attacker, defender)` — 相性に応じた倍率（2/0.1/1）
+
+#### damage.ts
+- `calculatePlayerDamage(player, enemy)` — プレイヤー→敵ダメージ計算（bigint、最低1保証）
+
+#### weapon.ts
+- `generateWeaponDrop(areaId)` — エリアに応じた武器ドロップ生成（名前・属性・補正値）
+
+### テスト結果
+```
+75 passed (constants: 25, player: 27, element: 12, damage: 5, weapon: 6)
+```
+
+### テスト内容
+- 属性相性の全9パターン（有利3・不利3・同属性3）
+- 倍率の正確な値（2, 0.1, 1）
+- ダメージ計算（同属性・有利・不利）
+- 不利時の最低1ダメージ保証
+- bonus=0時のATKのみ計算
+- 武器の必須フィールド存在確認
+- 属性がfire/ice/thunderのいずれか
+- attackBonusが0以上
+- 武器名がエリア対応テーブルに含まれる
+- エリア8 > エリア1のattackBonus（統計的検証）
+- 全8エリアでの武器生成確認
