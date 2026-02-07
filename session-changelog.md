@@ -268,3 +268,48 @@
 - rollAbnormal: rate=0→false, rate=1→true, tier値チェック
 - generateEnemy: 全フィールド、モンスター設定名使用、hp=maxHp、hp≥1、エリア8>>エリア1、isAbnormal/tier整合性、フォールバック
 - generateBoss: 設定名取得（草原の王）、isAbnormal=false、通常敵より強い（統計的）、expReward高い、フォールバック名、hp=maxHp
+
+---
+
+## フェーズ5: マップ・イベント進行（2026-02-07）
+
+### ブランチ
+`claude/phase5-map-event-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/lib/event.ts` | イベント生成（2関数） |
+| `src/lib/map.ts` | マップ進行（3関数） |
+| `src/lib/event.test.ts` | イベントテスト（8件） |
+| `src/lib/map.test.ts` | マップテスト（10件） |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `plan/phase5-map-event.md` | 詳細な関数設計・テスト計画に更新 |
+
+### 関数一覧
+
+#### event.ts
+- `rollEvent(areaId, step)` — 確率テーブルでイベント決定（step=6→必ずboss）
+- `generateUpcomingEvents(areaId, currentStep)` — 次3マス分の先読みイベント生成
+
+#### map.ts
+- `advanceStep(state)` — 1マス進む（イミュータブル、先読み再生成）
+- `advanceArea(state)` — 次エリアへ移動（エリア8→1に戻る）
+- `getCurrentEvent(state)` — 現在マスのイベントを返す
+
+### テスト結果
+```
+128 passed (constants: 25, player: 27, element: 12, damage: 5, weapon: 7, monsters: 9, weapons: 6, enemy: 19, event: 8, map: 10)
+```
+
+### テスト内容
+- rollEvent: step=6→全エリアでboss、step=1〜5→有効イベント、battleが統計的最多
+- generateUpcomingEvents: step別の件数(3/2/1/0)、boss含有確認
+- advanceStep: step+1、先読み再生成、boss含有、イミュータブル
+- advanceArea: エリア+1/step=1、先読み再生成、エリア8→1、イミュータブル
+- getCurrentEvent: step=6→boss、step=1〜5→有効イベント
