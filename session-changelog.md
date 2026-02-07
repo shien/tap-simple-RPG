@@ -228,3 +228,43 @@
 - getWeaponsForArea のエリア絞り込み
 - generateWeaponDrop が設定ファイルの武器名を返す
 - 設定にないエリアのフォールバック動作
+
+---
+
+## フェーズ4: 敵生成（2026-02-07）
+
+### ブランチ
+`claude/phase4-enemy-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/lib/enemy.ts` | 敵生成関数（4関数 + 内部ヘルパー2つ） |
+| `src/lib/enemy.test.ts` | 敵生成テスト（19件） |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `plan/phase4-enemy.md` | 詳細な関数設計・基礎ステータス・テスト計画に更新 |
+
+### 関数一覧（enemy.ts）
+- `rollIndividualVariation(areaConfig)` — 個体補正算出（弱め寄り分布 `min + range * r^2`）
+- `rollAbnormal(areaConfig)` — 異常個体判定 + Tier重み付き抽選
+- `generateEnemy(areaId)` — 通常敵生成（モンスター設定参照、個体差・異常個体対応）
+- `generateBoss(areaId)` — ボス生成（モンスター設定参照、bossMultiplier適用）
+
+### 基礎ステータス
+- BASE_HP=30, BASE_ATK=5, BASE_EXP=8, BASE_GOLD=3
+
+### テスト結果
+```
+110 passed (constants: 25, player: 27, element: 12, damage: 5, weapon: 7, monsters: 9, weapons: 6, enemy: 19)
+```
+
+### テスト内容
+- rollIndividualVariation: 草原(0.85〜1.15)・魔王城(0.5〜2.6) 各100回
+- rollAbnormal: rate=0→false, rate=1→true, tier値チェック
+- generateEnemy: 全フィールド、モンスター設定名使用、hp=maxHp、hp≥1、エリア8>>エリア1、isAbnormal/tier整合性、フォールバック
+- generateBoss: 設定名取得（草原の王）、isAbnormal=false、通常敵より強い（統計的）、expReward高い、フォールバック名、hp=maxHp
