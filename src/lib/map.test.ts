@@ -8,7 +8,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
     player: createInitialPlayer(),
     currentArea: 1,
     currentStep: 1,
-    upcomingEvents: ["battle", "rest", "treasure"],
+    upcomingEvents: [{ type: "battle" }, { type: "rest" }, { type: "treasure" }],
     phase: "exploration",
     ...overrides,
   };
@@ -34,7 +34,7 @@ describe("advanceStep", () => {
     const next = advanceStep(state);
     expect(next.currentStep).toBe(5);
     // step=5 からの先読み → [boss]
-    expect(next.upcomingEvents).toContain("boss");
+    expect(next.upcomingEvents.some((e) => e.type === "boss")).toBe(true);
   });
 
   it("元のstateは変更されない（イミュータブル）", () => {

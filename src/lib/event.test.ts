@@ -47,13 +47,13 @@ describe("generateUpcomingEvents", () => {
   it("step=4 で 2つ返る（step5,6）、最後が boss", () => {
     const events = generateUpcomingEvents(1, 4);
     expect(events).toHaveLength(2);
-    expect(events[events.length - 1]).toBe("boss");
+    expect(events[events.length - 1].type).toBe("boss");
   });
 
   it("step=5 で 1つ返る（boss）", () => {
     const events = generateUpcomingEvents(1, 5);
     expect(events).toHaveLength(1);
-    expect(events[0]).toBe("boss");
+    expect(events[0].type).toBe("boss");
   });
 
   it("step=6 で 空配列", () => {
@@ -64,6 +64,42 @@ describe("generateUpcomingEvents", () => {
   it("step=3 で 3つ返る（step4,5,6）、最後が boss", () => {
     const events = generateUpcomingEvents(1, 3);
     expect(events).toHaveLength(3);
-    expect(events[2]).toBe("boss");
+    expect(events[2].type).toBe("boss");
+  });
+
+  it("各要素が type を持つ UpcomingEvent である", () => {
+    const events = generateUpcomingEvents(1, 1);
+    const validTypes = ["battle", "rest", "treasure", "trap", "boss"];
+    for (const ev of events) {
+      expect(validTypes).toContain(ev.type);
+    }
+  });
+
+  it("battle/boss イベントに enemyElement が含まれる", () => {
+    // 十分な回数で battle/boss が出るまで試す
+    const validElements = ["water", "earth", "thunder"];
+    for (let i = 0; i < 50; i++) {
+      const events = generateUpcomingEvents(1, 3); // step4,5,6 → 最後がboss
+      const bossEvent = events.find((e) => e.type === "boss");
+      if (bossEvent) {
+        expect(validElements).toContain(bossEvent.enemyElement);
+      }
+      for (const ev of events) {
+        if (ev.type === "battle" || ev.type === "boss") {
+          expect(validElements).toContain(ev.enemyElement);
+        }
+      }
+    }
+  });
+
+  it("rest/treasure/trap イベントに enemyElement が含まれない", () => {
+    for (let i = 0; i < 50; i++) {
+      const events = generateUpcomingEvents(1, 1);
+      for (const ev of events) {
+        if (ev.type === "rest" || ev.type === "treasure" || ev.type === "trap") {
+          expect(ev.enemyElement).toBeUndefined();
+        }
+      }
+    }
   });
 });

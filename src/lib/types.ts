@@ -86,11 +86,17 @@ export type BattleState = {
   droppedWeapon: Weapon | null;
 };
 
+// === 先読みイベント ===
+export type UpcomingEvent = {
+  type: EventType;
+  enemyElement?: Element;
+};
+
 // === ゲーム状態 ===
 export type GameState = {
   player: Player;
   currentArea: AreaId;
   currentStep: number; // 1〜6
-  upcomingEvents: EventType[];
+  upcomingEvents: UpcomingEvent[];
   phase: "exploration" | "battle" | "event" | "gameover";
 };
