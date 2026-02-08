@@ -5,7 +5,7 @@ import type { Player, Enemy } from "./types";
 function makePlayer(
   atk: bigint,
   attackBonus: bigint,
-  weaponElement: "fire" | "ice" | "thunder"
+  weaponElement: "water" | "earth" | "thunder"
 ): Player {
   return {
     level: 1,
@@ -18,7 +18,7 @@ function makePlayer(
   };
 }
 
-function makeEnemy(element: "fire" | "ice" | "thunder"): Enemy {
+function makeEnemy(element: "water" | "earth" | "thunder"): Enemy {
   return {
     name: "テスト敵",
     element,
@@ -34,32 +34,32 @@ function makeEnemy(element: "fire" | "ice" | "thunder"): Enemy {
 
 describe("calculatePlayerDamage", () => {
   it("同属性: (ATK + bonus) × 1", () => {
-    const p = makePlayer(100n, 50n, "fire");
-    const e = makeEnemy("fire");
+    const p = makePlayer(100n, 50n, "water");
+    const e = makeEnemy("water");
     expect(calculatePlayerDamage(p, e)).toBe(150n);
   });
 
   it("有利: (ATK + bonus) × 2", () => {
-    const p = makePlayer(100n, 50n, "fire");
-    const e = makeEnemy("ice");
+    const p = makePlayer(100n, 50n, "water");
+    const e = makeEnemy("earth");
     expect(calculatePlayerDamage(p, e)).toBe(300n);
   });
 
   it("不利: (ATK + bonus) / 10", () => {
-    const p = makePlayer(100n, 50n, "fire");
+    const p = makePlayer(100n, 50n, "water");
     const e = makeEnemy("thunder");
     expect(calculatePlayerDamage(p, e)).toBe(15n);
   });
 
   it("不利で極小でも最低1ダメージ保証", () => {
-    const p = makePlayer(5n, 0n, "fire");
+    const p = makePlayer(5n, 0n, "water");
     const e = makeEnemy("thunder");
     // 5 / 10 = 0 → 最低1保証
     expect(calculatePlayerDamage(p, e)).toBe(1n);
   });
 
   it("bonus=0nのときATKのみで計算", () => {
-    const p = makePlayer(100n, 0n, "ice");
+    const p = makePlayer(100n, 0n, "earth");
     const e = makeEnemy("thunder");
     // 有利: 100 * 2 = 200
     expect(calculatePlayerDamage(p, e)).toBe(200n);

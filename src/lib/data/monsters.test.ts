@@ -12,7 +12,7 @@ describe("MONSTERS", () => {
       expect(m.name).toBeTruthy();
       expect(m.description).toBeTruthy();
       expect(m.areaIds.length).toBeGreaterThan(0);
-      expect(["fire", "ice", "thunder"]).toContain(m.element);
+      expect(["water", "earth", "thunder"]).toContain(m.element);
       expect(typeof m.isBoss).toBe("boolean");
     }
   });

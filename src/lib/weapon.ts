@@ -2,7 +2,7 @@ import type { AreaId, Element, Weapon } from "./types";
 import { AREAS } from "./constants";
 import { getWeaponsForArea } from "./data/weapons";
 
-const ELEMENTS: Element[] = ["fire", "ice", "thunder"];
+const ELEMENTS: Element[] = ["water", "earth", "thunder"];
 
 /** 敵撃破時にドロップする武器を生成する */
 export function generateWeaponDrop(areaId: AreaId): Weapon {

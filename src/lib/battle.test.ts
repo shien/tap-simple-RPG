@@ -17,7 +17,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     maxHp: 50n,
     atk: 10n,
     gold: 0n,
-    weapon: { name: "棒", element: "fire", attackBonus: 5n },
+    weapon: { name: "棒", element: "water", attackBonus: 5n },
     ...overrides,
   };
 }
@@ -26,7 +26,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
 function makeEnemy(overrides: Partial<Enemy> = {}): Enemy {
   return {
     name: "スライム",
-    element: "ice",
+    element: "earth",
     hp: 30n,
     maxHp: 30n,
     atk: 5n,
@@ -54,7 +54,7 @@ describe("createBattleState", () => {
 describe("playerAttack", () => {
   it("敵HPが正しく減少する", () => {
     const player = makePlayer(); // atk=10 + weapon bonus=5 = 15
-    const enemy = makeEnemy({ element: "fire" }); // neutral → ×1
+    const enemy = makeEnemy({ element: "water" }); // neutral → ×1
     const state = createBattleState(player, enemy);
     const after = playerAttack(state);
 
@@ -64,12 +64,12 @@ describe("playerAttack", () => {
   });
 
   it("属性有利で2倍ダメージ", () => {
-    // fire > ice → advantage ×2
+    // water > earth → advantage ×2
     const player = makePlayer({
-      weapon: { name: "炎の剣", element: "fire", attackBonus: 0n },
+      weapon: { name: "水の剣", element: "water", attackBonus: 0n },
       atk: 10n,
     });
-    const enemy = makeEnemy({ element: "ice", hp: 100n, maxHp: 100n });
+    const enemy = makeEnemy({ element: "earth", hp: 100n, maxHp: 100n });
     const state = createBattleState(player, enemy);
     const after = playerAttack(state);
 
@@ -78,9 +78,9 @@ describe("playerAttack", () => {
   });
 
   it("属性不利で1/10ダメージ（最低1保証）", () => {
-    // fire vs thunder → disadvantage ×0.1
+    // water vs thunder → disadvantage ×0.1
     const player = makePlayer({
-      weapon: { name: "炎の剣", element: "fire", attackBonus: 0n },
+      weapon: { name: "水の剣", element: "water", attackBonus: 0n },
       atk: 10n,
     });
     const enemy = makeEnemy({ element: "thunder", hp: 100n, maxHp: 100n });
@@ -93,7 +93,7 @@ describe("playerAttack", () => {
 
   it("属性不利でatk=1の場合、最低1ダメージ保証", () => {
     const player = makePlayer({
-      weapon: { name: "棒", element: "fire", attackBonus: 0n },
+      weapon: { name: "棒", element: "water", attackBonus: 0n },
       atk: 1n,
     });
     const enemy = makeEnemy({ element: "thunder", hp: 100n, maxHp: 100n });
@@ -118,7 +118,7 @@ describe("playerAttack", () => {
 
   it("敵HPが0未満にならない", () => {
     const player = makePlayer({ atk: 1000n });
-    const enemy = makeEnemy({ element: "fire", hp: 5n, maxHp: 5n });
+    const enemy = makeEnemy({ element: "water", hp: 5n, maxHp: 5n });
     const state = createBattleState(player, enemy);
     const after = playerAttack(state);
 
@@ -252,7 +252,7 @@ describe("processBattleRewards", () => {
     // 武器が新しく生成されていることを確認（名前またはattackBonusが変わる可能性）
     expect(after.player.weapon).toBeDefined();
     expect(after.player.weapon.name).toBeDefined();
-    expect(["fire", "ice", "thunder"]).toContain(after.player.weapon.element);
+    expect(["water", "earth", "thunder"]).toContain(after.player.weapon.element);
   });
 
   it("result!='victory' なら何もしない", () => {

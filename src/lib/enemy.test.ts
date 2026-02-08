@@ -71,10 +71,10 @@ describe("generateEnemy", () => {
     expect(e).toHaveProperty("abnormalTier");
   });
 
-  it("elementがfire/ice/thunderのいずれか", () => {
+  it("elementがwater/earth/thunderのいずれか", () => {
     for (let i = 0; i < 20; i++) {
       const e = generateEnemy(1);
-      expect(["fire", "ice", "thunder"]).toContain(e.element);
+      expect(["water", "earth", "thunder"]).toContain(e.element);
     }
   });
 

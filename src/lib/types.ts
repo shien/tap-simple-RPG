@@ -1,5 +1,5 @@
 // === 属性 ===
-export type Element = "fire" | "ice" | "thunder";
+export type Element = "water" | "thunder" | "earth";
 
 // === 属性相性 ===
 export type ElementAdvantage = "advantage" | "disadvantage" | "neutral";

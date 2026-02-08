@@ -26,9 +26,9 @@ describe("createInitialPlayer", () => {
     expect(p.weapon.attackBonus).toBe(0n);
   });
 
-  it("武器の属性がfire/ice/thunderのいずれか", () => {
+  it("武器の属性がwater/earth/thunderのいずれか", () => {
     const p = createInitialPlayer();
-    expect(["fire", "ice", "thunder"]).toContain(p.weapon.element);
+    expect(["water", "earth", "thunder"]).toContain(p.weapon.element);
   });
 });
 
