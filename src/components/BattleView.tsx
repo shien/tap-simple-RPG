@@ -61,7 +61,7 @@ export function BattleView({
   // 戦闘終了 → 結果表示
   if (result !== "ongoing") {
     return (
-      <BattleResultView battleState={battleState} onChooseWeapon={onChooseWeapon} onContinue={onEndBattle} />
+      <BattleResultView battleState={battleState} upcomingEvents={gameState.upcomingEvents} onChooseWeapon={onChooseWeapon} onContinue={onEndBattle} />
     );
   }
 

@@ -1,6 +1,7 @@
-import type { BattleState, Weapon } from "@/lib/types";
+import type { BattleState, UpcomingEvent, Weapon } from "@/lib/types";
 import { ABNORMAL_EXP_MULTIPLIER } from "@/lib/constants";
 import { ElementBadge } from "./ElementBadge";
+import { EventPreview } from "./EventPreview";
 
 function WeaponCard({
   weapon,
@@ -32,10 +33,12 @@ function WeaponCard({
 
 export function BattleResultView({
   battleState,
+  upcomingEvents,
   onChooseWeapon,
   onContinue,
 }: {
   battleState: BattleState;
+  upcomingEvents: UpcomingEvent[];
   onChooseWeapon: (weapon: Weapon) => void;
   onContinue: () => void;
 }) {
@@ -67,7 +70,8 @@ export function BattleResultView({
 
         {droppedWeapon && (
           <div className="w-full">
-            <p className="mb-2 text-center text-sm text-zinc-400">
+            <EventPreview events={upcomingEvents} />
+            <p className="mb-2 mt-3 text-center text-sm text-zinc-400">
               武器を選択してください
             </p>
             <div className="flex gap-3">
