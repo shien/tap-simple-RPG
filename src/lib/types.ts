@@ -97,6 +97,7 @@ export type GameState = {
   player: Player;
   currentArea: AreaId;
   currentStep: number; // 1〜6
+  areaEvents: UpcomingEvent[]; // エリア内のstep1〜5の事前生成イベント列
   upcomingEvents: UpcomingEvent[];
   phase: "exploration" | "battle" | "event" | "gameover";
 };

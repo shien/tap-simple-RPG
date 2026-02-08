@@ -3,7 +3,7 @@ import { AREAS } from "./constants";
 import { createInitialPlayer, heal, takeDamage, addExp, isDead } from "./player";
 import { advanceArea } from "./map";
 import { getCurrentEvent } from "./map";
-import { generateUpcomingEvents } from "./event";
+import { generateAreaEvents, generateUpcomingEvents } from "./event";
 
 // === 定数 ===
 const REST_HEAL_RATIO = 0.3;
@@ -13,11 +13,13 @@ const TREASURE_BASE_GOLD = 10n;
 
 /** 新しいゲームを初期化する */
 export function createNewGame(): GameState {
+  const areaEvents = generateAreaEvents(1);
   return {
     player: createInitialPlayer(),
     currentArea: 1,
     currentStep: 1,
-    upcomingEvents: generateUpcomingEvents(1, 1),
+    areaEvents,
+    upcomingEvents: generateUpcomingEvents(areaEvents, 1),
     phase: "exploration",
   };
 }

@@ -46,6 +46,16 @@ describe("createNewGame", () => {
     expect(state.phase).toBe("exploration");
   });
 
+  it("areaEvents が6件存在し、最後がboss", () => {
+    const state = createNewGame();
+
+    expect(state.areaEvents).toHaveLength(6);
+    expect(state.areaEvents[5].type).toBe("boss");
+    for (const ev of state.areaEvents) {
+      expect(["battle", "rest", "treasure", "trap", "boss"]).toContain(ev.type);
+    }
+  });
+
   it("upcomingEvents が3件存在する", () => {
     const state = createNewGame();
 
@@ -54,6 +64,15 @@ describe("createNewGame", () => {
     for (const ev of state.upcomingEvents) {
       expect(["battle", "rest", "treasure", "trap", "boss"]).toContain(ev.type);
     }
+  });
+
+  it("upcomingEvents が areaEvents と一貫性がある", () => {
+    const state = createNewGame();
+
+    // step=1 → 先読み: step 2,3,4
+    expect(state.upcomingEvents[0]).toBe(state.areaEvents[1]);
+    expect(state.upcomingEvents[1]).toBe(state.areaEvents[2]);
+    expect(state.upcomingEvents[2]).toBe(state.areaEvents[3]);
   });
 
   it("武器は「棒」で属性がランダム", () => {

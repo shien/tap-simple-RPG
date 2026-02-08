@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { rollEvent, generateUpcomingEvents } from "./event";
-import type { AreaId } from "./types";
+import { rollEvent, generateAreaEvents, generateUpcomingEvents } from "./event";
+import type { AreaId, UpcomingEvent } from "./types";
 
 describe("rollEvent", () => {
   it("step=6 で必ず boss が返る（全8エリア）", () => {
@@ -38,52 +38,33 @@ describe("rollEvent", () => {
   });
 });
 
-describe("generateUpcomingEvents", () => {
-  it("step=1 で 3つ返る", () => {
-    const events = generateUpcomingEvents(1, 1);
-    expect(events).toHaveLength(3);
+describe("generateAreaEvents", () => {
+  it("6つのイベントを返す（step1〜6）", () => {
+    const events = generateAreaEvents(1);
+    expect(events).toHaveLength(6);
   });
 
-  it("step=4 で 2つ返る（step5,6）、最後が boss", () => {
-    const events = generateUpcomingEvents(1, 4);
-    expect(events).toHaveLength(2);
-    expect(events[events.length - 1].type).toBe("boss");
-  });
-
-  it("step=5 で 1つ返る（boss）", () => {
-    const events = generateUpcomingEvents(1, 5);
-    expect(events).toHaveLength(1);
-    expect(events[0].type).toBe("boss");
-  });
-
-  it("step=6 で 空配列", () => {
-    const events = generateUpcomingEvents(1, 6);
-    expect(events).toHaveLength(0);
-  });
-
-  it("step=3 で 3つ返る（step4,5,6）、最後が boss", () => {
-    const events = generateUpcomingEvents(1, 3);
-    expect(events).toHaveLength(3);
-    expect(events[2].type).toBe("boss");
-  });
-
-  it("各要素が type を持つ UpcomingEvent である", () => {
-    const events = generateUpcomingEvents(1, 1);
-    const validTypes = ["battle", "rest", "treasure", "trap", "boss"];
-    for (const ev of events) {
-      expect(validTypes).toContain(ev.type);
+  it("最後のイベント（step6）は必ず boss", () => {
+    for (let i = 0; i < 10; i++) {
+      const events = generateAreaEvents(1);
+      expect(events[5].type).toBe("boss");
     }
   });
 
-  it("battle/boss イベントに enemyElement が含まれる", () => {
-    // 十分な回数で battle/boss が出るまで試す
+  it("step1〜5 は battle/rest/treasure/trap のいずれか", () => {
+    const valid = ["battle", "rest", "treasure", "trap"];
+    for (let i = 0; i < 10; i++) {
+      const events = generateAreaEvents(1);
+      for (let s = 0; s < 5; s++) {
+        expect(valid).toContain(events[s].type);
+      }
+    }
+  });
+
+  it("battle イベントに enemyElement が含まれる", () => {
     const validElements = ["water", "earth", "thunder"];
     for (let i = 0; i < 50; i++) {
-      const events = generateUpcomingEvents(1, 3); // step4,5,6 → 最後がboss
-      const bossEvent = events.find((e) => e.type === "boss");
-      if (bossEvent) {
-        expect(validElements).toContain(bossEvent.enemyElement);
-      }
+      const events = generateAreaEvents(1);
       for (const ev of events) {
         if (ev.type === "battle" || ev.type === "boss") {
           expect(validElements).toContain(ev.enemyElement);
@@ -94,12 +75,88 @@ describe("generateUpcomingEvents", () => {
 
   it("rest/treasure/trap イベントに enemyElement が含まれない", () => {
     for (let i = 0; i < 50; i++) {
-      const events = generateUpcomingEvents(1, 1);
+      const events = generateAreaEvents(1);
       for (const ev of events) {
         if (ev.type === "rest" || ev.type === "treasure" || ev.type === "trap") {
           expect(ev.enemyElement).toBeUndefined();
         }
       }
     }
+  });
+
+  it("boss イベントに enemyElement が含まれる", () => {
+    const validElements = ["water", "earth", "thunder"];
+    for (let i = 0; i < 10; i++) {
+      const events = generateAreaEvents(1);
+      const boss = events[5];
+      expect(boss.type).toBe("boss");
+      expect(validElements).toContain(boss.enemyElement);
+    }
+  });
+
+  it("エリア1のボスは草原の王（thunder）", () => {
+    for (let i = 0; i < 10; i++) {
+      const events = generateAreaEvents(1);
+      expect(events[5].enemyElement).toBe("thunder");
+    }
+  });
+
+  it("全8エリアで正しく生成される", () => {
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const events = generateAreaEvents(areaId as AreaId);
+      expect(events).toHaveLength(6);
+      expect(events[5].type).toBe("boss");
+    }
+  });
+});
+
+describe("generateUpcomingEvents", () => {
+  const sampleAreaEvents: UpcomingEvent[] = [
+    { type: "battle", enemyElement: "water" },
+    { type: "rest" },
+    { type: "treasure" },
+    { type: "trap" },
+    { type: "battle", enemyElement: "earth" },
+    { type: "boss", enemyElement: "thunder" },
+  ];
+
+  it("step=1 で 3つ返る（step2,3,4）", () => {
+    const events = generateUpcomingEvents(sampleAreaEvents, 1);
+    expect(events).toHaveLength(3);
+    expect(events[0]).toEqual({ type: "rest" });
+    expect(events[1]).toEqual({ type: "treasure" });
+    expect(events[2]).toEqual({ type: "trap" });
+  });
+
+  it("step=4 で 2つ返る（step5,6）、最後が boss", () => {
+    const events = generateUpcomingEvents(sampleAreaEvents, 4);
+    expect(events).toHaveLength(2);
+    expect(events[0]).toEqual({ type: "battle", enemyElement: "earth" });
+    expect(events[1]).toEqual({ type: "boss", enemyElement: "thunder" });
+  });
+
+  it("step=5 で 1つ返る（boss）", () => {
+    const events = generateUpcomingEvents(sampleAreaEvents, 5);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toEqual({ type: "boss", enemyElement: "thunder" });
+  });
+
+  it("step=6 で 空配列", () => {
+    const events = generateUpcomingEvents(sampleAreaEvents, 6);
+    expect(events).toHaveLength(0);
+  });
+
+  it("step=3 で 3つ返る（step4,5,6）、最後が boss", () => {
+    const events = generateUpcomingEvents(sampleAreaEvents, 3);
+    expect(events).toHaveLength(3);
+    expect(events[2].type).toBe("boss");
+  });
+
+  it("areaEventsの内容がそのまま返される（一貫性）", () => {
+    const events = generateUpcomingEvents(sampleAreaEvents, 1);
+    // step2,3,4 の内容が返る
+    expect(events[0]).toBe(sampleAreaEvents[1]);
+    expect(events[1]).toBe(sampleAreaEvents[2]);
+    expect(events[2]).toBe(sampleAreaEvents[3]);
   });
 });
