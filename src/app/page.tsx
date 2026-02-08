@@ -2,10 +2,12 @@
 
 import { useGameState } from "@/hooks/useGameState";
 import { ExplorationView } from "@/components/ExplorationView";
+import { BattleView } from "@/components/BattleView";
 import { GameOverView } from "@/components/GameOverView";
 
 export default function Home() {
-  const { gameState, battleState, message, move, restart } = useGameState();
+  const { gameState, battleState, message, move, attack, enemyAttack, endBattle, restart } =
+    useGameState();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-900 text-zinc-100">
@@ -17,15 +19,13 @@ export default function Home() {
         )}
 
         {gameState.phase === "battle" && battleState && (
-          <div className="flex flex-col items-center gap-4 py-8">
-            <p className="text-lg">戦闘中...</p>
-            <p className="text-sm text-zinc-400">
-              vs {battleState.enemy.name}
-            </p>
-            <p className="text-xs text-zinc-500">
-              （戦闘UIはPhase9で実装）
-            </p>
-          </div>
+          <BattleView
+            battleState={battleState}
+            gameState={gameState}
+            onAttack={attack}
+            onEnemyAttack={enemyAttack}
+            onEndBattle={endBattle}
+          />
         )}
 
         {gameState.phase === "exploration" && (

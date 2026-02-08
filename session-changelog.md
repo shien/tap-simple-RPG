@@ -470,3 +470,62 @@ page.tsx (メインページ)
 ```
 pnpm run build — 成功
 ```
+
+---
+
+## フェーズ9: UI — 戦闘画面（2026-02-08）
+
+### ブランチ
+`claude/phase9-ui-battle-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/components/ElementBadge.tsx` | 属性バッジ（火=赤, 氷=青, 雷=黄） |
+| `src/components/HpBar.tsx` | 汎用HPバー（プレイヤー・敵共用） |
+| `src/components/BattleView.tsx` | 戦闘画面（敵情報+相性+攻撃ボタン+敵自動攻撃） |
+| `src/components/BattleResultView.tsx` | 勝利報酬/敗北結果画面 |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `src/hooks/useGameState.ts` | attack(), enemyAttack(), endBattle() 追加 |
+| `src/app/page.tsx` | プレースホルダ → BattleView 統合 |
+| `plan/phase9-ui-battle.md` | 詳細なコンポーネント設計・相性表示・完了条件に更新 |
+
+### コンポーネント構成
+```
+page.tsx (メインページ)
+├── ExplorationView (探索画面) [Phase8]
+├── BattleView (戦闘画面) [NEW]
+│   ├── ElementBadge (属性バッジ)
+│   ├── HpBar (HPバー — 敵・プレイヤー)
+│   └── BattleResultView (勝利/敗北結果)
+└── GameOverView (ゲームオーバー) [Phase8]
+```
+
+### useGameState 追加メソッド
+- `attack()` — プレイヤー攻撃 → checkBattleResult → 勝利時は報酬処理
+- `enemyAttack()` — 敵自動攻撃 → checkBattleResult
+- `endBattle()` — 戦闘終了 → handleBattleVictory or handleDeath
+
+### 戦闘画面の特徴
+- 敵情報: 名前 + 属性バッジ + HPバー（赤） + 異常個体バッジ
+- 相性表示: 武器属性 vs 敵属性 → 有利!×2(緑) / 不利...×0.1(赤) / 同属性×1(灰)
+- 攻撃ボタン: 大きなタップしやすいボタン（赤）
+- 敵自動攻撃: setInterval 1.5秒間隔
+- 異常個体: 「異常個体」バッジ + 「撃破時 EXP x100」表示
+- 勝利結果: EXP/Gold表示 + 「続ける」ボタン
+- 敗北結果: 「力尽きた...」+ 「最初から」ボタン
+
+### テスト結果
+```
+174 passed（既存テストに変更なし）
+```
+
+### ビルド結果
+```
+pnpm run build — 成功
+```
