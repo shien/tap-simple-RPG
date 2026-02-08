@@ -313,3 +313,47 @@
 - advanceStep: step+1、先読み再生成、boss含有、イミュータブル
 - advanceArea: エリア+1/step=1、先読み再生成、エリア8→1、イミュータブル
 - getCurrentEvent: step=6→boss、step=1〜5→有効イベント
+
+---
+
+## フェーズ6: 戦闘システム（2026-02-08）
+
+### ブランチ
+`claude/phase6-battle-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/lib/battle.ts` | 戦闘ロジック（5関数） |
+| `src/lib/battle.test.ts` | 戦闘テスト（20件） |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `src/lib/types.ts` | BattleResult / BattleState 型追加 |
+| `plan/phase6-battle.md` | 詳細な関数設計・テスト計画に更新 |
+
+### 型追加（types.ts）
+- `BattleResult` — 戦闘結果（"ongoing" / "victory" / "defeat"）
+- `BattleState` — 戦闘状態（player, enemy, result, turnCount）
+
+### 関数一覧（battle.ts）
+- `createBattleState(player, enemy)` — 戦闘開始状態を生成（result="ongoing", turnCount=0）
+- `playerAttack(state)` — プレイヤー攻撃（属性相性ダメージ計算、敵HP減少、turnCount+1）
+- `enemyAttack(state)` — 敵自動攻撃（プレイヤーHP減少）
+- `checkBattleResult(state)` — 勝敗判定（プレイヤー死亡優先＝相打ちは敗北）
+- `processBattleRewards(state, areaId)` — 報酬処理（EXP/Gold加算、異常個体EXP×100、武器ドロップ）
+
+### テスト結果
+```
+148 passed (constants: 25, player: 27, element: 12, damage: 5, weapon: 7, monsters: 9, weapons: 6, enemy: 19, event: 8, map: 10, battle: 20)
+```
+
+### テスト内容
+- createBattleState: 初期化値の検証
+- playerAttack: 通常ダメージ、属性有利×2、属性不利×0.1（最低1保証）、二重攻撃防止、HP0下限
+- enemyAttack: ATK分ダメージ、HP0下限、終了後攻撃防止
+- checkBattleResult: victory/defeat/ongoing判定、相打ちは敗北（プレイヤー死亡優先）
+- processBattleRewards: EXP/Gold加算、異常個体EXP×100、武器更新、非勝利時は変更なし、レベルアップ連動

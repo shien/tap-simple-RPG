@@ -74,6 +74,17 @@ export type WeaponConfig = {
   element: Element;
 };
 
+// === 戦闘結果 ===
+export type BattleResult = "ongoing" | "victory" | "defeat";
+
+// === 戦闘状態 ===
+export type BattleState = {
+  player: Player;
+  enemy: Enemy;
+  result: BattleResult;
+  turnCount: number;
+};
+
 // === ゲーム状態 ===
 export type GameState = {
   player: Player;
