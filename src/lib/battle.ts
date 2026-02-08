@@ -11,6 +11,7 @@ export function createBattleState(player: Player, enemy: Enemy): BattleState {
     enemy,
     result: "ongoing",
     turnCount: 0,
+    droppedWeapon: null,
   };
 }
 
@@ -70,11 +71,11 @@ export function processBattleRewards(
   player = {
     ...player,
     gold: player.gold + state.enemy.goldReward,
-    weapon: generateWeaponDrop(areaId),
   };
 
   return {
     ...state,
     player,
+    droppedWeapon: generateWeaponDrop(areaId),
   };
 }

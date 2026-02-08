@@ -52,7 +52,7 @@ describe("createNewGame", () => {
     // step=1 → 先読み: step 2,3,4 → 3件
     expect(state.upcomingEvents).toHaveLength(3);
     for (const ev of state.upcomingEvents) {
-      expect(["battle", "rest", "treasure", "trap", "boss"]).toContain(ev);
+      expect(["battle", "rest", "treasure", "trap", "boss"]).toContain(ev.type);
     }
   });
 

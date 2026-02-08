@@ -6,7 +6,7 @@ import { BattleView } from "@/components/BattleView";
 import { GameOverView } from "@/components/GameOverView";
 
 export default function Home() {
-  const { gameState, battleState, message, move, attack, enemyAttack, endBattle, restart } =
+  const { gameState, battleState, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart } =
     useGameState();
 
   return (
@@ -24,6 +24,7 @@ export default function Home() {
             gameState={gameState}
             onAttack={attack}
             onEnemyAttack={enemyAttack}
+            onChooseWeapon={chooseWeapon}
             onEndBattle={endBattle}
           />
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { BattleState, GameState, ElementAdvantage } from "@/lib/types";
+import type { BattleState, GameState, ElementAdvantage, Weapon } from "@/lib/types";
 import { getElementAdvantage, getElementMultiplier } from "@/lib/element";
 import { ElementBadge } from "./ElementBadge";
 import { HpBar } from "./HpBar";
@@ -23,12 +23,14 @@ export function BattleView({
   gameState,
   onAttack,
   onEnemyAttack,
+  onChooseWeapon,
   onEndBattle,
 }: {
   battleState: BattleState;
   gameState: GameState;
   onAttack: () => void;
   onEnemyAttack: () => void;
+  onChooseWeapon: (weapon: Weapon) => void;
   onEndBattle: () => void;
 }) {
   const { player, enemy, result } = battleState;
@@ -59,7 +61,7 @@ export function BattleView({
   // 戦闘終了 → 結果表示
   if (result !== "ongoing") {
     return (
-      <BattleResultView battleState={battleState} onContinue={onEndBattle} />
+      <BattleResultView battleState={battleState} upcomingEvents={gameState.upcomingEvents} onChooseWeapon={onChooseWeapon} onContinue={onEndBattle} />
     );
   }
 
