@@ -4,48 +4,78 @@
 死亡リスタート・エリア遷移・クリア判定など、ゲーム全体の進行を管理する。
 
 ## 依存
-- フェーズ2（プレイヤー）
-- フェーズ5（マップ・イベント）
-- フェーズ6（戦闘）
+- フェーズ2（プレイヤー — createInitialPlayer, heal, takeDamage, addExp, isDead）
+- フェーズ4（敵生成 — generateEnemy, generateBoss）
+- フェーズ5（マップ・イベント — advanceStep, advanceArea, getCurrentEvent, generateUpcomingEvents）
+- フェーズ6（戦闘 — createBattleState, processBattleRewards）
 
 ## 実装ファイル
-- `src/lib/game.ts`
+- `src/lib/game.ts` — ゲーム全体フロー
+- `src/lib/game.test.ts` — テスト
 
-## 関数
+## 関数設計
 
-### createNewGame
+### game.ts
+
+#### createNewGame(): GameState
 新しいゲームを初期化する。
-- 初期プレイヤー生成
-- 草原エリア1、マス1からスタート
-- 先読みイベント3つ生成
+- createInitialPlayer() でプレイヤー生成
+- currentArea = 1（草原）
+- currentStep = 1
+- upcomingEvents = generateUpcomingEvents(1, 1)
+- phase = "exploration"
 
-### processEvent
-現在マスのイベントを処理する。
-- Battle → 戦闘開始
-- Rest → HP回復
-- Treasure → EXP/Gold獲得
-- Trap → ダメージ
+#### processEvent(state: GameState): GameState
+現在マスのイベントを処理する。getCurrentEvent で種別を取得。
+- **battle**: phase を "battle" に変更
+- **boss**: phase を "battle" に変更
+- **rest**: HP を maxHP の 30% 回復、phase は "exploration" のまま
+- **treasure**: EXP と Gold をエリアのrewardMultiplierに応じて獲得
+- **trap**: maxHP の 20% ダメージ。死亡したら phase = "gameover"
 
-### handleDeath
-死亡時のリスタート処理。
-- 全進行リセット
-- createNewGame と同等の初期化
+#### handleBattleVictory(state: GameState): GameState
+戦闘勝利後の処理。
+- 現在マスが boss（step=6）なら handleBossClear を呼ぶ
+- 通常戦闘なら phase を "exploration" に戻す
 
-### handleBossClear
+#### handleBossClear(state: GameState): GameState
 ボス撃破後の処理。
-- 次エリアへ遷移
-- エリア8ボス撃破時 → クリア → 最初から
+- currentArea < 8: advanceArea で次エリアへ、phase = "exploration"
+- currentArea === 8: クリア → createNewGame()（最初から）
 
-### isGameClear
-魔王城ボス撃破でクリア判定。
+#### handleDeath(state: GameState): GameState
+死亡時のリスタート処理。
+- createNewGame() と同等の初期化を返す
 
-## テスト
-- 新規ゲームが正しい初期状態であること
-- 各イベントが正しく処理されること
-- 死亡で全リセットされること
-- ボス撃破で次エリアに進むこと
-- エリア8クリアで最初に戻ること
+#### isGameClear(state: GameState): boolean
+魔王城（エリア8）のボス撃破判定。
+- currentArea === 8 かつ currentStep === 6
+
+## 定数
+- REST_HEAL_RATIO = 0.3 （回復量 = maxHP × 30%）
+- TRAP_DAMAGE_RATIO = 0.2 （罠ダメージ = maxHP × 20%）
+- TREASURE_BASE_EXP = 5n （宝箱基礎EXP）
+- TREASURE_BASE_GOLD = 10n （宝箱基礎Gold）
+
+## テスト計画
+
+### game.test.ts
+- createNewGame: 初期状態の全フィールド検証（Lv1, area=1, step=1, exploration）
+- createNewGame: upcomingEvents が3件存在する
+- processEvent(battle): phase が "battle" になる
+- processEvent(boss): phase が "battle" になる
+- processEvent(rest): HP が回復する（maxHPの30%、上限超えない）
+- processEvent(treasure): EXP と Gold が増加する
+- processEvent(trap): HP が減少する（maxHPの20%）
+- processEvent(trap): HPが0になったら phase = "gameover"
+- handleBattleVictory: 通常戦闘後 phase = "exploration"
+- handleBattleVictory: ボス（step=6）後に次エリアへ遷移
+- handleBattleVictory: エリア8ボス撃破でリスタート（クリア）
+- handleDeath: 全進行リセット（Lv1, area=1, step=1）
+- isGameClear: エリア8 step=6 で true
+- isGameClear: エリア8 以外で false
+- イミュータブル: 元の state が変更されない
 
 ## 完了条件
-- 全テストが通る
-- ゲーム全体のフローが一通り動作すること
+- 全テスト通過
+- `pnpm run build` 成功
