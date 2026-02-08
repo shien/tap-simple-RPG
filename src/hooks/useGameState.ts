@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { GameState, BattleState } from "@/lib/types";
+import type { GameState, BattleState, Weapon } from "@/lib/types";
 import { createNewGame, processEvent, handleBattleVictory, handleDeath } from "@/lib/game";
 import { advanceStep } from "@/lib/map";
 import {
@@ -79,6 +79,18 @@ export function useGameState() {
     });
   }, []);
 
+  /** 武器を選択してプレイヤーに装備 */
+  const chooseWeapon = useCallback((weapon: Weapon) => {
+    setBattleState((prev) => {
+      if (!prev || prev.result !== "victory") return prev;
+      return {
+        ...prev,
+        player: { ...prev.player, weapon },
+        droppedWeapon: null,
+      };
+    });
+  }, []);
+
   /** 戦闘終了 → 探索に戻る or リスタート */
   const endBattle = useCallback(() => {
     setBattleState((prev) => {
@@ -106,5 +118,5 @@ export function useGameState() {
     setMessage(null);
   }, []);
 
-  return { gameState, battleState, message, move, attack, enemyAttack, endBattle, restart };
+  return { gameState, battleState, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart };
 }

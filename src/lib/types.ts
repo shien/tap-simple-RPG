@@ -83,6 +83,7 @@ export type BattleState = {
   enemy: Enemy;
   result: BattleResult;
   turnCount: number;
+  droppedWeapon: Weapon | null;
 };
 
 // === ゲーム状態 ===

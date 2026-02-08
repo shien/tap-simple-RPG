@@ -110,6 +110,7 @@ describe("playerAttack", () => {
       enemy: makeEnemy(),
       result: "victory",
       turnCount: 5,
+      droppedWeapon: null,
     };
     const after = playerAttack(state);
 
@@ -151,6 +152,7 @@ describe("enemyAttack", () => {
       enemy: makeEnemy(),
       result: "defeat",
       turnCount: 3,
+      droppedWeapon: null,
     };
     const after = enemyAttack(state);
 
@@ -165,6 +167,7 @@ describe("checkBattleResult", () => {
       enemy: makeEnemy({ hp: 0n }),
       result: "ongoing",
       turnCount: 1,
+      droppedWeapon: null,
     };
     const after = checkBattleResult(state);
 
@@ -177,6 +180,7 @@ describe("checkBattleResult", () => {
       enemy: makeEnemy({ hp: 10n }),
       result: "ongoing",
       turnCount: 1,
+      droppedWeapon: null,
     };
     const after = checkBattleResult(state);
 
@@ -189,6 +193,7 @@ describe("checkBattleResult", () => {
       enemy: makeEnemy({ hp: 0n }),
       result: "ongoing",
       turnCount: 1,
+      droppedWeapon: null,
     };
     const after = checkBattleResult(state);
 
@@ -201,6 +206,7 @@ describe("checkBattleResult", () => {
       enemy: makeEnemy({ hp: 20n }),
       result: "ongoing",
       turnCount: 1,
+      droppedWeapon: null,
     };
     const after = checkBattleResult(state);
 
@@ -215,6 +221,7 @@ describe("processBattleRewards", () => {
       enemy: makeEnemy({ expReward: 10n, goldReward: 5n }),
       result: "victory",
       turnCount: 3,
+      droppedWeapon: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -233,6 +240,7 @@ describe("processBattleRewards", () => {
       }),
       result: "victory",
       turnCount: 3,
+      droppedWeapon: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -240,19 +248,33 @@ describe("processBattleRewards", () => {
     expect(after.player.gold).toBe(5n);
   });
 
-  it("武器が更新される", () => {
+  it("ドロップ武器が droppedWeapon に保持される", () => {
     const state: BattleState = {
       player: makePlayer(),
       enemy: makeEnemy(),
       result: "victory",
       turnCount: 3,
+      droppedWeapon: null,
     };
     const after = processBattleRewards(state, 1);
 
-    // 武器が新しく生成されていることを確認（名前またはattackBonusが変わる可能性）
-    expect(after.player.weapon).toBeDefined();
-    expect(after.player.weapon.name).toBeDefined();
-    expect(["water", "earth", "thunder"]).toContain(after.player.weapon.element);
+    expect(after.droppedWeapon).not.toBeNull();
+    expect(after.droppedWeapon!.name).toBeDefined();
+    expect(["water", "earth", "thunder"]).toContain(after.droppedWeapon!.element);
+  });
+
+  it("プレイヤーの武器は変更されない（即装備しない）", () => {
+    const originalWeapon = { name: "棒", element: "water" as const, attackBonus: 5n };
+    const state: BattleState = {
+      player: makePlayer({ weapon: originalWeapon }),
+      enemy: makeEnemy(),
+      result: "victory",
+      turnCount: 3,
+      droppedWeapon: null,
+    };
+    const after = processBattleRewards(state, 1);
+
+    expect(after.player.weapon).toEqual(originalWeapon);
   });
 
   it("result!='victory' なら何もしない", () => {
@@ -261,6 +283,7 @@ describe("processBattleRewards", () => {
       enemy: makeEnemy(),
       result: "defeat",
       turnCount: 3,
+      droppedWeapon: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -275,6 +298,7 @@ describe("processBattleRewards", () => {
       enemy: makeEnemy(),
       result: "ongoing",
       turnCount: 1,
+      droppedWeapon: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -288,6 +312,7 @@ describe("processBattleRewards", () => {
       enemy: makeEnemy({ expReward: 10n }),
       result: "victory",
       turnCount: 3,
+      droppedWeapon: null,
     };
     const after = processBattleRewards(state, 1);
 
