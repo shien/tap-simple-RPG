@@ -405,3 +405,68 @@
 - handleDeath: 全進行リセット
 - isGameClear: area=8/step=6でtrue、それ以外false
 - イミュータブル性: processEvent/handleBattleVictory が元stateを変更しない
+
+---
+
+## フェーズ8: UI — 探索画面（2026-02-08）
+
+### ブランチ
+`claude/phase8-ui-exploration-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/hooks/useGameState.ts` | ゲーム状態管理フック（move/restart） |
+| `src/components/PlayerStatus.tsx` | プレイヤーステータス（HP/ATK/Lv/Gold/武器） |
+| `src/components/AreaInfo.tsx` | エリア名 + マス進行（1〜6丸表示） |
+| `src/components/EventPreview.tsx` | 次3イベントプレビュー（色分けラベル） |
+| `src/components/EventResultMessage.tsx` | イベント結果メッセージ表示 |
+| `src/components/ExplorationView.tsx` | 探索画面統合コンポーネント |
+| `src/components/GameOverView.tsx` | ゲームオーバー画面 |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `src/app/page.tsx` | テンプレート → ゲーム画面に書き換え |
+| `plan/phase8-ui-exploration.md` | 詳細なコンポーネント設計・属性表示・完了条件に更新 |
+
+### コンポーネント構成
+```
+page.tsx (メインページ)
+├── ExplorationView (探索画面)
+│   ├── AreaInfo (エリア名 + マス進行)
+│   ├── EventPreview (次3イベント)
+│   ├── EventResultMessage (結果メッセージ)
+│   └── PlayerStatus (ステータス + HPバー + 武器)
+├── GameOverView (ゲームオーバー)
+└── 戦闘プレースホルダ (Phase9で本実装)
+```
+
+### useGameState フック
+- `gameState` — 現在のGameState
+- `battleState` — BattleState | null（戦闘時のみ）
+- `message` — イベント結果メッセージ
+- `move()` — 1マス進む → advanceStep → processEvent → phase分岐
+- `restart()` — ゲームリスタート
+
+### 属性表示
+- fire → 「火」赤 / ice → 「氷」青 / thunder → 「雷」黄
+
+### UI特徴
+- モバイルファースト（max-w-md 縦レイアウト）
+- ダーク基調（zinc-900 背景）
+- HPバー（残量で緑→黄→赤に変化）
+- マス進行を6マス丸表示（現在位置ハイライト、6マス目はB）
+- イベントプレビュー色分け（battle=赤, rest=緑, treasure=黄, trap=紫, boss=赤太字）
+
+### テスト結果
+```
+174 passed（既存テストに変更なし）
+```
+
+### ビルド結果
+```
+pnpm run build — 成功
+```
