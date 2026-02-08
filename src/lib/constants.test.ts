@@ -26,8 +26,8 @@ describe("AREAS", () => {
       expect(typeof area.enemyHpMultiplier).toBe("number");
       expect(typeof area.enemyAtkMultiplier).toBe("number");
       expect(typeof area.rewardMultiplier).toBe("number");
-      expect(area.elementDistribution).toHaveProperty("fire");
-      expect(area.elementDistribution).toHaveProperty("ice");
+      expect(area.elementDistribution).toHaveProperty("water");
+      expect(area.elementDistribution).toHaveProperty("earth");
       expect(area.elementDistribution).toHaveProperty("thunder");
       expect(typeof area.abnormalRate).toBe("number");
       expect(typeof area.bossMultiplier).toBe("number");
@@ -38,8 +38,8 @@ describe("AREAS", () => {
 
   it("属性出現分布の合計が1になる", () => {
     for (const area of AREAS) {
-      const { fire, ice, thunder } = area.elementDistribution;
-      expect(fire + ice + thunder).toBeCloseTo(1, 5);
+      const { water, earth, thunder } = area.elementDistribution;
+      expect(water + earth + thunder).toBeCloseTo(1, 5);
     }
   });
 
@@ -82,33 +82,33 @@ describe("AREAS", () => {
 });
 
 describe("ELEMENT_ADVANTAGE_MAP", () => {
-  it("火 > 氷（有利）", () => {
-    expect(ELEMENT_ADVANTAGE_MAP.fire.ice).toBe("advantage");
+  it("水 > 土（有利）", () => {
+    expect(ELEMENT_ADVANTAGE_MAP.water.earth).toBe("advantage");
   });
 
-  it("氷 > 雷（有利）", () => {
-    expect(ELEMENT_ADVANTAGE_MAP.ice.thunder).toBe("advantage");
+  it("土 > 雷（有利）", () => {
+    expect(ELEMENT_ADVANTAGE_MAP.earth.thunder).toBe("advantage");
   });
 
-  it("雷 > 火（有利）", () => {
-    expect(ELEMENT_ADVANTAGE_MAP.thunder.fire).toBe("advantage");
+  it("雷 > 水（有利）", () => {
+    expect(ELEMENT_ADVANTAGE_MAP.thunder.water).toBe("advantage");
   });
 
-  it("火 < 雷（不利）", () => {
-    expect(ELEMENT_ADVANTAGE_MAP.fire.thunder).toBe("disadvantage");
+  it("水 < 雷（不利）", () => {
+    expect(ELEMENT_ADVANTAGE_MAP.water.thunder).toBe("disadvantage");
   });
 
-  it("氷 < 火（不利）", () => {
-    expect(ELEMENT_ADVANTAGE_MAP.ice.fire).toBe("disadvantage");
+  it("土 < 水（不利）", () => {
+    expect(ELEMENT_ADVANTAGE_MAP.earth.water).toBe("disadvantage");
   });
 
-  it("雷 < 氷（不利）", () => {
-    expect(ELEMENT_ADVANTAGE_MAP.thunder.ice).toBe("disadvantage");
+  it("雷 < 土（不利）", () => {
+    expect(ELEMENT_ADVANTAGE_MAP.thunder.earth).toBe("disadvantage");
   });
 
   it("同属性はneutral", () => {
-    expect(ELEMENT_ADVANTAGE_MAP.fire.fire).toBe("neutral");
-    expect(ELEMENT_ADVANTAGE_MAP.ice.ice).toBe("neutral");
+    expect(ELEMENT_ADVANTAGE_MAP.water.water).toBe("neutral");
+    expect(ELEMENT_ADVANTAGE_MAP.earth.earth).toBe("neutral");
     expect(ELEMENT_ADVANTAGE_MAP.thunder.thunder).toBe("neutral");
   });
 });

@@ -7,7 +7,7 @@ const BASE_ATK = 5n;
 const BASE_EXP = 8n;
 const BASE_GOLD = 3n;
 
-const ELEMENTS: Element[] = ["fire", "ice", "thunder"];
+const ELEMENTS: Element[] = ["water", "earth", "thunder"];
 const ABNORMAL_TIER_WEIGHTS = [60, 25, 10, 5];
 
 /** エリアのelementDistributionに従ってランダム属性を選ぶ */

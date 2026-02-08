@@ -1,8 +1,8 @@
 import type { Element } from "@/lib/types";
 
 const ELEMENT_CONFIG: Record<Element, { label: string; className: string }> = {
-  fire: { label: "火", className: "bg-red-900 text-red-300" },
-  ice: { label: "氷", className: "bg-blue-900 text-blue-300" },
+  water: { label: "水", className: "bg-blue-900 text-blue-300" },
+  earth: { label: "土", className: "bg-amber-900 text-amber-300" },
   thunder: { label: "雷", className: "bg-yellow-900 text-yellow-300" },
 };
 

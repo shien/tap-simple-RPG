@@ -1,14 +1,14 @@
 import type { Player, Element } from "@/lib/types";
 
 const ELEMENT_LABEL: Record<Element, string> = {
-  fire: "火",
-  ice: "氷",
+  water: "水",
+  earth: "土",
   thunder: "雷",
 };
 
 const ELEMENT_COLOR: Record<Element, string> = {
-  fire: "text-red-500",
-  ice: "text-blue-400",
+  water: "text-blue-400",
+  earth: "text-amber-500",
   thunder: "text-yellow-500",
 };
 

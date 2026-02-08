@@ -7,7 +7,7 @@ export const WEAPONS: WeaponConfig[] = [
     name: "木の剣",
     description: "枝を削って作った粗末な剣",
     areaIds: [1],
-    element: "fire",
+    element: "water",
   },
   {
     id: "stone_axe",
@@ -21,14 +21,14 @@ export const WEAPONS: WeaponConfig[] = [
     name: "鉄の剣",
     description: "鍛冶屋で打たれた標準的な剣",
     areaIds: [2],
-    element: "fire",
+    element: "water",
   },
   {
-    id: "ice_staff",
-    name: "氷の杖",
-    description: "冷気を纏った魔法の杖",
+    id: "earth_staff",
+    name: "土の杖",
+    description: "大地の力を宿した魔法の杖",
     areaIds: [2, 3],
-    element: "ice",
+    element: "earth",
   },
   {
     id: "steel_blade",

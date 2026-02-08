@@ -7,7 +7,7 @@ export const MONSTERS: MonsterConfig[] = [
     name: "スライム",
     description: "草原に生息する青い軟体生物",
     areaIds: [1],
-    element: "ice",
+    element: "earth",
     isBoss: false,
   },
   {
@@ -15,7 +15,7 @@ export const MONSTERS: MonsterConfig[] = [
     name: "ゴブリン",
     description: "粗末な武器を振り回す小鬼",
     areaIds: [1, 2],
-    element: "fire",
+    element: "water",
     isBoss: false,
   },
   {
@@ -31,7 +31,7 @@ export const MONSTERS: MonsterConfig[] = [
     name: "ドラゴンパピー",
     description: "まだ幼い火竜の子供",
     areaIds: [3, 4],
-    element: "fire",
+    element: "water",
     isBoss: false,
   },
   {

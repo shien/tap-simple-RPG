@@ -12,7 +12,7 @@ describe("WEAPONS", () => {
       expect(w.name).toBeTruthy();
       expect(w.description).toBeTruthy();
       expect(w.areaIds.length).toBeGreaterThan(0);
-      expect(["fire", "ice", "thunder"]).toContain(w.element);
+      expect(["water", "earth", "thunder"]).toContain(w.element);
     }
   });
 

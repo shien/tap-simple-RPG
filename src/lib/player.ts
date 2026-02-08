@@ -1,6 +1,6 @@
 import type { Element, Player } from "./types";
 
-const ELEMENTS: Element[] = ["fire", "ice", "thunder"];
+const ELEMENTS: Element[] = ["water", "earth", "thunder"];
 
 /** 初期プレイヤーを生成する */
 export function createInitialPlayer(): Player {

@@ -11,9 +11,9 @@ describe("generateWeaponDrop", () => {
     expect(w).toHaveProperty("attackBonus");
   });
 
-  it("elementがfire/ice/thunderのいずれか", () => {
+  it("elementがwater/earth/thunderのいずれか", () => {
     const w = generateWeaponDrop(1);
-    expect(["fire", "ice", "thunder"]).toContain(w.element);
+    expect(["water", "earth", "thunder"]).toContain(w.element);
   });
 
   it("attackBonusが0n以上", () => {

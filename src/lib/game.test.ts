@@ -60,7 +60,7 @@ describe("createNewGame", () => {
     const state = createNewGame();
 
     expect(state.player.weapon.name).toBe("棒");
-    expect(["fire", "ice", "thunder"]).toContain(state.player.weapon.element);
+    expect(["water", "earth", "thunder"]).toContain(state.player.weapon.element);
     expect(state.player.weapon.attackBonus).toBe(0n);
   });
 });
