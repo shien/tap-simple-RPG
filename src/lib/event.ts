@@ -1,5 +1,6 @@
 import type { AreaId, Element, EventType, UpcomingEvent } from "./types";
 import { AREAS, EVENT_PROBABILITY_TABLE } from "./constants";
+import { getBossForArea } from "./data/monsters";
 
 const ELEMENTS: Element[] = ["water", "earth", "thunder"];
 
@@ -34,20 +35,39 @@ function rollElement(distribution: Record<Element, number>): Element {
   return ELEMENTS[ELEMENTS.length - 1];
 }
 
-/** 次の最大3マス分のイベントを先読み生成する */
-export function generateUpcomingEvents(
-  areaId: AreaId,
-  currentStep: number
-): UpcomingEvent[] {
+/** エリア内のstep1〜6のイベントを事前生成する */
+export function generateAreaEvents(areaId: AreaId): UpcomingEvent[] {
   const area = AREAS[areaId - 1];
   const events: UpcomingEvent[] = [];
-  for (let s = currentStep + 1; s <= Math.min(currentStep + 3, 6); s++) {
+
+  // step 1〜5: ランダムイベント
+  for (let s = 1; s <= 5; s++) {
     const type = rollEvent(areaId, s);
-    if (type === "battle" || type === "boss") {
+    if (type === "battle") {
       events.push({ type, enemyElement: rollElement(area.elementDistribution) });
     } else {
       events.push({ type });
     }
+  }
+
+  // step 6: ボス固定
+  const bossConfig = getBossForArea(areaId);
+  const bossElement = bossConfig
+    ? bossConfig.element
+    : rollElement(area.elementDistribution);
+  events.push({ type: "boss", enemyElement: bossElement });
+
+  return events;
+}
+
+/** areaEventsから次の最大3マス分のイベントを先読みで返す */
+export function generateUpcomingEvents(
+  areaEvents: UpcomingEvent[],
+  currentStep: number
+): UpcomingEvent[] {
+  const events: UpcomingEvent[] = [];
+  for (let s = currentStep + 1; s <= Math.min(currentStep + 3, 6); s++) {
+    events.push(areaEvents[s - 1]);
   }
   return events;
 }
