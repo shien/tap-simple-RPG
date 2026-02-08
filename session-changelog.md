@@ -357,3 +357,51 @@
 - enemyAttack: ATK分ダメージ、HP0下限、終了後攻撃防止
 - checkBattleResult: victory/defeat/ongoing判定、相打ちは敗北（プレイヤー死亡優先）
 - processBattleRewards: EXP/Gold加算、異常個体EXP×100、武器更新、非勝利時は変更なし、レベルアップ連動
+
+---
+
+## フェーズ7: ゲーム全体フロー（2026-02-08）
+
+### ブランチ
+`claude/phase7-game-flow-D1kkn`
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `src/lib/game.ts` | ゲーム全体フロー（6関数） |
+| `src/lib/game.test.ts` | ゲームフローテスト（26件） |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `plan/phase7-game-flow.md` | 詳細な関数設計・定数・テスト計画に更新 |
+
+### 定数（game.ts 内）
+- `REST_HEAL_RATIO` = 0.3 （回復量 = maxHP × 30%）
+- `TRAP_DAMAGE_RATIO` = 0.2 （罠ダメージ = maxHP × 20%）
+- `TREASURE_BASE_EXP` = 5n （宝箱基礎EXP）
+- `TREASURE_BASE_GOLD` = 10n （宝箱基礎Gold）
+
+### 関数一覧（game.ts）
+- `createNewGame()` — 新規ゲーム初期化（Lv1, area=1, step=1, exploration, 先読み3件）
+- `processEvent(state)` — イベント処理（battle/boss→phase変更、rest→HP30%回復、treasure→EXP/Gold、trap→HP20%ダメージ）
+- `handleBattleVictory(state)` — 戦闘勝利後処理（通常→exploration、ボス→次エリアまたはクリア）
+- `handleBossClear(state)` — ボス撃破後処理（次エリア遷移、エリア8→リスタート）
+- `handleDeath()` — 死亡リスタート（createNewGameと同等）
+- `isGameClear(state)` — 魔王城ボス撃破判定（area=8, step=6）
+
+### テスト結果
+```
+174 passed (constants: 25, player: 27, element: 12, damage: 5, weapon: 7, monsters: 9, weapons: 6, enemy: 19, event: 8, map: 10, battle: 20, game: 26)
+```
+
+### テスト内容
+- createNewGame: 初期状態全フィールド、upcomingEvents 3件、武器「棒」
+- processEvent: battle/boss→phase変更、rest→HP30%回復（上限あり）、treasure→EXP/Gold加算、trap→HP20%ダメージ、trap死亡→gameover
+- handleBattleVictory: 通常→exploration、ボス→次エリア遷移、エリア7→8、エリア8→リスタート
+- handleBossClear: エリア1→2遷移、エリア8→リスタート
+- handleDeath: 全進行リセット
+- isGameClear: area=8/step=6でtrue、それ以外false
+- イミュータブル性: processEvent/handleBattleVictory が元stateを変更しない
