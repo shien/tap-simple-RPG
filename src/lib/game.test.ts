@@ -52,7 +52,7 @@ describe("createNewGame", () => {
     expect(state.areaEvents).toHaveLength(6);
     expect(state.areaEvents[5].type).toBe("boss");
     for (const ev of state.areaEvents) {
-      expect(["battle", "rest", "treasure", "trap", "boss"]).toContain(ev.type);
+      expect(["battle", "rest", "treasure", "boss"]).toContain(ev.type);
     }
   });
 
@@ -62,7 +62,7 @@ describe("createNewGame", () => {
     // step=1 → 先読み: step 2,3,4 → 3件
     expect(state.upcomingEvents).toHaveLength(3);
     for (const ev of state.upcomingEvents) {
-      expect(["battle", "rest", "treasure", "trap", "boss"]).toContain(ev.type);
+      expect(["battle", "rest", "treasure", "boss"]).toContain(ev.type);
     }
   });
 
@@ -163,38 +163,6 @@ describe("processEvent", () => {
     });
   });
 
-  describe("trap", () => {
-    it("HP が maxHP の 20% 減少する", () => {
-      const state = makeState();
-      getCurrentEventMock.mockReturnValueOnce("trap");
-
-      const after = processEvent(state);
-
-      // 50 * 0.2 = 10 → 50 - 10 = 40
-      expect(after.player.hp).toBe(40n);
-    });
-
-    it("HP が 0 になったら phase = 'gameover'", () => {
-      const state = makeState();
-      state.player = { ...state.player, hp: 5n, maxHp: 50n };
-      getCurrentEventMock.mockReturnValueOnce("trap");
-
-      const after = processEvent({ ...state, player: { ...state.player } });
-
-      // damage = 50*0.2 = 10 → 5-10 = 0 (clamped)
-      expect(after.player.hp).toBe(0n);
-      expect(after.phase).toBe("gameover");
-    });
-
-    it("HP が残っていれば phase は変わらない", () => {
-      const state = makeState();
-      getCurrentEventMock.mockReturnValueOnce("trap");
-
-      const after = processEvent(state);
-
-      expect(after.phase).toBe("exploration");
-    });
-  });
 });
 
 describe("handleBattleVictory", () => {
@@ -313,7 +281,7 @@ describe("イミュータブル性", () => {
       typeof v === "bigint" ? v.toString() : v
     );
 
-    getCurrentEventMock.mockReturnValueOnce("trap");
+    getCurrentEventMock.mockReturnValueOnce("rest");
     processEvent(state);
 
     const after = JSON.stringify(state, (_k, v) =>

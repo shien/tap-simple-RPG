@@ -7,7 +7,7 @@ const defaultAreaEvents: UpcomingEvent[] = [
   { type: "battle", enemyElement: "water" },
   { type: "rest" },
   { type: "treasure" },
-  { type: "trap" },
+  { type: "rest" },
   { type: "battle", enemyElement: "earth" },
   { type: "boss", enemyElement: "thunder" },
 ];

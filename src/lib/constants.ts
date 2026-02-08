@@ -125,17 +125,17 @@ export const AREAS: readonly AreaConfig[] = [
 ] as const;
 
 // === イベント確率テーブル（エリアごと） ===
-// battle / rest / treasure / trap の出現割合（6マス目のbossは別処理）
+// battle / rest / treasure の出現割合（6マス目のbossは別処理）
 export const EVENT_PROBABILITY_TABLE: Record<
   number,
-  { battle: number; rest: number; treasure: number; trap: number }
+  { battle: number; rest: number; treasure: number }
 > = {
-  1: { battle: 0.5, rest: 0.2, treasure: 0.2, trap: 0.1 },
-  2: { battle: 0.5, rest: 0.2, treasure: 0.15, trap: 0.15 },
-  3: { battle: 0.55, rest: 0.15, treasure: 0.15, trap: 0.15 },
-  4: { battle: 0.55, rest: 0.15, treasure: 0.1, trap: 0.2 },
-  5: { battle: 0.6, rest: 0.1, treasure: 0.1, trap: 0.2 },
-  6: { battle: 0.6, rest: 0.1, treasure: 0.1, trap: 0.2 },
-  7: { battle: 0.65, rest: 0.1, treasure: 0.05, trap: 0.2 },
-  8: { battle: 0.65, rest: 0.1, treasure: 0.05, trap: 0.2 },
+  1: { battle: 0.55, rest: 0.25, treasure: 0.2 },
+  2: { battle: 0.55, rest: 0.25, treasure: 0.2 },
+  3: { battle: 0.6, rest: 0.2, treasure: 0.2 },
+  4: { battle: 0.6, rest: 0.2, treasure: 0.2 },
+  5: { battle: 0.65, rest: 0.2, treasure: 0.15 },
+  6: { battle: 0.65, rest: 0.2, treasure: 0.15 },
+  7: { battle: 0.7, rest: 0.15, treasure: 0.15 },
+  8: { battle: 0.7, rest: 0.15, treasure: 0.15 },
 };

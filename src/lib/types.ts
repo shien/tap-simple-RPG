@@ -36,7 +36,7 @@ export type Enemy = {
 };
 
 // === イベント種別 ===
-export type EventType = "battle" | "rest" | "treasure" | "trap" | "boss";
+export type EventType = "battle" | "rest" | "treasure" | "boss";
 
 // === エリアID ===
 export type AreaId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
