@@ -40,20 +40,16 @@ export function useGameState() {
       const processed = processEvent(stepped);
 
       if (processed.phase === "battle") {
+        const currentEvent = stepped.areaEvents[stepped.currentStep - 1];
+        const presetElement = currentEvent?.enemyElement;
         const enemy =
           stepped.currentStep === 6
-            ? generateBoss(stepped.currentArea)
-            : generateEnemy(stepped.currentArea);
+            ? generateBoss(stepped.currentArea, presetElement)
+            : generateEnemy(stepped.currentArea, presetElement);
         return {
           gameState: processed,
           battleState: createBattleState(processed.player, enemy),
           message: null,
-        };
-      } else if (processed.phase === "gameover") {
-        return {
-          gameState: processed,
-          battleState: null,
-          message: "罠にかかって力尽きた...",
         };
       } else {
         const hpDiff = processed.player.hp - prev.gameState.player.hp;
@@ -65,8 +61,6 @@ export function useGameState() {
           message = `休息: HP ${hpDiff.toString()} 回復`;
         } else if (expDiff > 0n || goldDiff > 0n) {
           message = `宝箱: EXP +${expDiff.toString()}, Gold +${goldDiff.toString()}`;
-        } else if (hpDiff < 0n) {
-          message = `罠: ${(-hpDiff).toString()} ダメージ`;
         }
 
         return {

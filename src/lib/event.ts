@@ -18,10 +18,7 @@ export function rollEvent(areaId: AreaId, step: number): EventType {
   cumulative += table.rest;
   if (r < cumulative) return "rest";
 
-  cumulative += table.treasure;
-  if (r < cumulative) return "treasure";
-
-  return "trap";
+  return "treasure";
 }
 
 /** エリアのelementDistributionに従ってランダム属性を選ぶ */

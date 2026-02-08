@@ -128,6 +128,21 @@ describe("generateEnemy", () => {
       expect(e.hp).toBeGreaterThanOrEqual(1n);
     }
   });
+
+  it("presetElement指定時はその属性が使われる", () => {
+    for (let i = 0; i < 20; i++) {
+      const e = generateEnemy(1, "thunder");
+      expect(e.element).toBe("thunder");
+    }
+  });
+
+  it("presetElement指定時でもHP/ATK等は正しく生成される", () => {
+    const e = generateEnemy(1, "water");
+    expect(e.element).toBe("water");
+    expect(e.hp).toBeGreaterThanOrEqual(1n);
+    expect(e.maxHp).toBe(e.hp);
+    expect(e.atk).toBeGreaterThanOrEqual(1n);
+  });
 });
 
 describe("generateBoss", () => {
@@ -171,5 +186,10 @@ describe("generateBoss", () => {
   it("hp と maxHp が一致する", () => {
     const boss = generateBoss(1);
     expect(boss.hp).toBe(boss.maxHp);
+  });
+
+  it("presetElement指定時はその属性が使われる", () => {
+    const boss = generateBoss(1, "water");
+    expect(boss.element).toBe("water");
   });
 });

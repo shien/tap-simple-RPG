@@ -55,14 +55,25 @@ function applyMultiplier(base: bigint, multiplier: number): bigint {
 }
 
 /** エリア設定に基づいて通常敵を生成する */
-export function generateEnemy(areaId: AreaId): Enemy {
+export function generateEnemy(areaId: AreaId, presetElement?: Element): Enemy {
   const area = AREAS[areaId - 1];
   const candidates = getMonstersForArea(areaId);
 
   let name: string;
   let element: Element;
 
-  if (candidates.length > 0) {
+  if (presetElement) {
+    // 事前生成済み属性が指定されている場合はそれを使用
+    element = presetElement;
+    const samElementCandidates = candidates.filter((c) => c.element === presetElement);
+    if (samElementCandidates.length > 0) {
+      name = samElementCandidates[Math.floor(Math.random() * samElementCandidates.length)].name;
+    } else if (candidates.length > 0) {
+      name = candidates[Math.floor(Math.random() * candidates.length)].name;
+    } else {
+      name = "モンスター";
+    }
+  } else if (candidates.length > 0) {
     const picked = candidates[Math.floor(Math.random() * candidates.length)];
     name = picked.name;
     element = picked.element;
@@ -106,14 +117,16 @@ export function generateEnemy(areaId: AreaId): Enemy {
 }
 
 /** ボス敵を生成する */
-export function generateBoss(areaId: AreaId): Enemy {
+export function generateBoss(areaId: AreaId, presetElement?: Element): Enemy {
   const area = AREAS[areaId - 1];
   const bossConfig = getBossForArea(areaId);
 
   const name = bossConfig ? bossConfig.name : `${area.name}のボス`;
-  const element = bossConfig
-    ? bossConfig.element
-    : rollElement(area.elementDistribution);
+  const element = presetElement
+    ? presetElement
+    : bossConfig
+      ? bossConfig.element
+      : rollElement(area.elementDistribution);
 
   const hp = applyMultiplier(
     BASE_HP,

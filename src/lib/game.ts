@@ -1,13 +1,12 @@
 import type { GameState } from "./types";
 import { AREAS } from "./constants";
-import { createInitialPlayer, heal, takeDamage, addExp, isDead } from "./player";
+import { createInitialPlayer, heal, addExp } from "./player";
 import { advanceArea } from "./map";
 import { getCurrentEvent } from "./map";
 import { generateAreaEvents, generateUpcomingEvents } from "./event";
 
 // === 定数 ===
 const REST_HEAL_RATIO = 0.3;
-const TRAP_DAMAGE_RATIO = 0.2;
 const TREASURE_BASE_EXP = 5n;
 const TREASURE_BASE_GOLD = 10n;
 
@@ -53,18 +52,6 @@ export function processEvent(state: GameState): GameState {
         exp
       );
       return { ...state, player };
-    }
-
-    case "trap": {
-      const damage = BigInt(
-        Math.max(1, Math.floor(Number(state.player.maxHp) * TRAP_DAMAGE_RATIO))
-      );
-      const player = takeDamage(state.player, damage);
-      return {
-        ...state,
-        player,
-        phase: isDead(player) ? "gameover" : state.phase,
-      };
     }
   }
 }
