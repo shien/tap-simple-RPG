@@ -13,15 +13,30 @@ import {
 } from "@/lib/battle";
 import { generateEnemy, generateBoss } from "@/lib/enemy";
 
+/** すべてのゲーム状態を1つにまとめることで画面遷移の原子性を保証する */
+type CombinedState = {
+  gameState: GameState;
+  battleState: BattleState | null;
+  message: string | null;
+};
+
+function createInitialState(): CombinedState {
+  return {
+    gameState: createNewGame(),
+    battleState: null,
+    message: null,
+  };
+}
+
 export function useGameState() {
-  const [gameState, setGameState] = useState<GameState>(createNewGame);
-  const [battleState, setBattleState] = useState<BattleState | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [state, setState] = useState<CombinedState>(createInitialState);
 
   /** 1マス進む → イベント処理 */
   const move = useCallback(() => {
-    setGameState((prev) => {
-      const stepped = advanceStep(prev);
+    setState((prev) => {
+      if (prev.gameState.phase !== "exploration") return prev;
+
+      const stepped = advanceStep(prev.gameState);
       const processed = processEvent(stepped);
 
       if (processed.phase === "battle") {
@@ -29,94 +44,122 @@ export function useGameState() {
           stepped.currentStep === 6
             ? generateBoss(stepped.currentArea)
             : generateEnemy(stepped.currentArea);
-        setBattleState(createBattleState(processed.player, enemy));
-        setMessage(null);
+        return {
+          gameState: processed,
+          battleState: createBattleState(processed.player, enemy),
+          message: null,
+        };
       } else if (processed.phase === "gameover") {
-        setBattleState(null);
-        setMessage("罠にかかって力尽きた...");
+        return {
+          gameState: processed,
+          battleState: null,
+          message: "罠にかかって力尽きた...",
+        };
       } else {
-        setBattleState(null);
-        const hpDiff = processed.player.hp - prev.player.hp;
-        const expDiff = processed.player.exp - prev.player.exp;
-        const goldDiff = processed.player.gold - prev.player.gold;
+        const hpDiff = processed.player.hp - prev.gameState.player.hp;
+        const expDiff = processed.player.exp - prev.gameState.player.exp;
+        const goldDiff = processed.player.gold - prev.gameState.player.gold;
 
+        let message: string | null = null;
         if (hpDiff > 0n) {
-          setMessage(`休息: HP ${hpDiff.toString()} 回復`);
+          message = `休息: HP ${hpDiff.toString()} 回復`;
         } else if (expDiff > 0n || goldDiff > 0n) {
-          setMessage(
-            `宝箱: EXP +${expDiff.toString()}, Gold +${goldDiff.toString()}`
-          );
+          message = `宝箱: EXP +${expDiff.toString()}, Gold +${goldDiff.toString()}`;
         } else if (hpDiff < 0n) {
-          setMessage(`罠: ${(-hpDiff).toString()} ダメージ`);
-        } else {
-          setMessage(null);
+          message = `罠: ${(-hpDiff).toString()} ダメージ`;
         }
-      }
 
-      return processed;
+        return {
+          gameState: processed,
+          battleState: null,
+          message,
+        };
+      }
     });
   }, []);
 
   /** プレイヤー攻撃（タップ） */
   const attack = useCallback(() => {
-    setBattleState((prev) => {
-      if (!prev || prev.result !== "ongoing") return prev;
-      const attacked = playerAttack(prev);
+    setState((prev) => {
+      if (!prev.battleState || prev.battleState.result !== "ongoing") return prev;
+      const attacked = playerAttack(prev.battleState);
       const checked = checkBattleResult(attacked);
       if (checked.result === "victory") {
-        return processBattleRewards(checked, gameState.currentArea);
+        return {
+          ...prev,
+          battleState: processBattleRewards(checked, prev.gameState.currentArea),
+        };
       }
-      return checked;
+      return { ...prev, battleState: checked };
     });
-  }, [gameState.currentArea]);
+  }, []);
 
   /** 敵の自動攻撃 */
   const enemyAttack = useCallback(() => {
-    setBattleState((prev) => {
-      if (!prev || prev.result !== "ongoing") return prev;
-      const attacked = enemyAttackFn(prev);
-      return checkBattleResult(attacked);
+    setState((prev) => {
+      if (!prev.battleState || prev.battleState.result !== "ongoing") return prev;
+      const attacked = enemyAttackFn(prev.battleState);
+      return { ...prev, battleState: checkBattleResult(attacked) };
     });
   }, []);
 
   /** 武器を選択してプレイヤーに装備 */
   const chooseWeapon = useCallback((weapon: Weapon) => {
-    setBattleState((prev) => {
-      if (!prev || prev.result !== "victory") return prev;
+    setState((prev) => {
+      if (!prev.battleState || prev.battleState.result !== "victory") return prev;
       return {
         ...prev,
-        player: { ...prev.player, weapon },
-        droppedWeapon: null,
+        battleState: {
+          ...prev.battleState,
+          player: { ...prev.battleState.player, weapon },
+          droppedWeapon: null,
+        },
       };
     });
   }, []);
 
   /** 戦闘終了 → 探索に戻る or リスタート */
   const endBattle = useCallback(() => {
-    setBattleState((prev) => {
-      if (!prev) return null;
+    setState((prev) => {
+      if (!prev.battleState) return prev;
 
-      if (prev.result === "victory") {
-        setGameState((gs) => {
-          const updated = { ...gs, player: prev.player };
-          return handleBattleVictory(updated);
-        });
-        setMessage(null);
-      } else if (prev.result === "defeat") {
-        setGameState(handleDeath());
-        setMessage(null);
+      if (prev.battleState.result === "victory") {
+        const updated = { ...prev.gameState, player: prev.battleState.player };
+        return {
+          gameState: handleBattleVictory(updated),
+          battleState: null,
+          message: null,
+        };
+      } else if (prev.battleState.result === "defeat") {
+        return {
+          gameState: handleDeath(),
+          battleState: null,
+          message: null,
+        };
       }
 
-      return null;
+      return prev;
     });
   }, []);
 
   /** リスタート */
   const restart = useCallback(() => {
-    setGameState(handleDeath());
-    setBattleState(null);
-    setMessage(null);
+    setState({
+      gameState: handleDeath(),
+      battleState: null,
+      message: null,
+    });
   }, []);
 
-  return { gameState, battleState, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart };
+  return {
+    gameState: state.gameState,
+    battleState: state.battleState,
+    message: state.message,
+    move,
+    attack,
+    enemyAttack,
+    chooseWeapon,
+    endBattle,
+    restart,
+  };
 }
