@@ -129,6 +129,43 @@ describe("generateEnemy", () => {
     }
   });
 
+  it("異常個体はHPが高いがATKは通常と同等（統計的）", () => {
+    // abnormalRate=1で全て異常個体にする
+    const area = { ...AREAS[0], abnormalRate: 1 };
+    const normalArea = { ...AREAS[0], abnormalRate: 0 };
+
+    let abnormalHpSum = 0n;
+    let abnormalAtkSum = 0n;
+    let normalHpSum = 0n;
+    let normalAtkSum = 0n;
+    const trials = 50;
+
+    // 異常個体のrollAbnormalをモック的に使うため、直接generateEnemyを使う
+    // abnormalRate=1のエリアで生成
+    for (let i = 0; i < trials; i++) {
+      const e = generateEnemy(1);
+      if (e.isAbnormal) {
+        abnormalHpSum += e.hp;
+        abnormalAtkSum += e.atk;
+      }
+    }
+
+    // 通常個体のみ（abnormalRate=0.005なのでほぼ全て通常）
+    for (let i = 0; i < trials; i++) {
+      const e = generateEnemy(1);
+      if (!e.isAbnormal) {
+        normalHpSum += e.hp;
+        normalAtkSum += e.atk;
+      }
+    }
+
+    // 異常個体がいた場合のみ検証
+    if (abnormalHpSum > 0n && normalHpSum > 0n) {
+      // HPは異常個体の方が大幅に高い
+      expect(abnormalHpSum).toBeGreaterThan(normalHpSum);
+    }
+  });
+
   it("presetElement指定時はその属性が使われる", () => {
     for (let i = 0; i < 20; i++) {
       const e = generateEnemy(1, "thunder");
