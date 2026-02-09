@@ -10,6 +10,7 @@ import {
   createBattleState,
   playerAttack,
   enemyAttack as enemyAttackFn,
+  activateDodge,
   checkBattleResult,
   processBattleRewards,
 } from "@/lib/battle";
@@ -97,6 +98,14 @@ export function useGameState() {
       if (!prev.battleState || prev.battleState.result !== "ongoing") return prev;
       const attacked = enemyAttackFn(prev.battleState);
       return { ...prev, battleState: checkBattleResult(attacked) };
+    });
+  }, []);
+
+  /** 回避を発動 */
+  const dodge = useCallback(() => {
+    setState((prev) => {
+      if (!prev.battleState || prev.battleState.result !== "ongoing") return prev;
+      return { ...prev, battleState: activateDodge(prev.battleState) };
     });
   }, []);
 
@@ -212,6 +221,7 @@ export function useGameState() {
     move,
     attack,
     enemyAttack,
+    dodge,
     chooseWeapon,
     endBattle,
     restart,

@@ -11,7 +11,7 @@ import { StartScreen } from "@/components/StartScreen";
 
 export default function Home() {
   const [started, setStarted] = useState(false);
-  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon } =
+  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon,dodge } =
     useGameState();
 
   if (!started) {
@@ -53,6 +53,7 @@ export default function Home() {
             gameState={gameState}
             onAttack={attack}
             onEnemyAttack={enemyAttack}
+            onDodge={dodge}
             onChooseWeapon={chooseWeapon}
             onEndBattle={endBattle}
           />
