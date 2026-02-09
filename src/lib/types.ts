@@ -96,8 +96,8 @@ export type UpcomingEvent = {
 export type GameState = {
   player: Player;
   currentArea: AreaId;
-  currentStep: number; // 1〜6
-  areaEvents: UpcomingEvent[]; // エリア内のstep1〜5の事前生成イベント列
+  currentStep: number; // 1〜8
+  areaEvents: UpcomingEvent[]; // エリア内のstep1〜8の事前生成イベント列
   upcomingEvents: UpcomingEvent[];
   phase: "exploration" | "battlePrep" | "battle" | "event" | "treasureSelect" | "gameover";
   healCount: number; // 回復残回数（初期3、ボス撃破で+1）

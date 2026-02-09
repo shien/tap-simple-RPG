@@ -82,7 +82,7 @@ type AreaConfig = {
 type GameState = {
   player: Player
   currentArea: AreaId
-  currentStep: number  // 1〜6
+  currentStep: number  // 1〜8
   upcomingEvents: EventType[]
   phase: "exploration" | "battle" | "event" | "gameover"
 }
