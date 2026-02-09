@@ -8,7 +8,7 @@ const BASE_EXP = 8n;
 const BASE_GOLD = 3n;
 
 const ELEMENTS: Element[] = ["water", "earth", "thunder"];
-const ABNORMAL_TIER_WEIGHTS = [60, 25, 10, 5];
+const ABNORMAL_TIER_WEIGHTS = [25, 30, 25, 20];
 
 /** エリアのelementDistributionに従ってランダム属性を選ぶ */
 function rollElement(distribution: Record<Element, number>): Element {
@@ -92,7 +92,7 @@ export function generateEnemy(areaId: AreaId, presetElement?: Element): Enemy {
   );
   const atk = applyMultiplier(
     BASE_ATK,
-    area.enemyAtkMultiplier * variation * abnormalMul
+    area.enemyAtkMultiplier * variation
   );
   const expReward = applyMultiplier(
     BASE_EXP,
