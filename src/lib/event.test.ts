@@ -90,10 +90,10 @@ describe("generateAreaEvents", () => {
     }
   });
 
-  it("エリア1のボスは草原の王（thunder）", () => {
+  it("エリア1のボスはグレイズビースト（earth）", () => {
     for (let i = 0; i < 10; i++) {
       const events = generateAreaEvents(1);
-      expect(events[5].enemyElement).toBe("thunder");
+      expect(events[5].enemyElement).toBe("earth");
     }
   });
 
