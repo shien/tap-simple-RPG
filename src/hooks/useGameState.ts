@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { GameState, BattleState, Weapon } from "@/lib/types";
-import { createNewGame, processEvent, handleBattleVictory, handleDeath } from "@/lib/game";
+import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle } from "@/lib/game";
 import { advanceStep } from "@/lib/map";
 import {
   createBattleState,
@@ -39,7 +39,7 @@ export function useGameState() {
       const stepped = advanceStep(prev.gameState);
       const processed = processEvent(stepped);
 
-      if (processed.phase === "battle") {
+      if (processed.phase === "battlePrep") {
         const currentEvent = stepped.areaEvents[stepped.currentStep - 1];
         const presetElement = currentEvent?.enemyElement;
         const enemy =
@@ -52,14 +52,11 @@ export function useGameState() {
           message: null,
         };
       } else {
-        const hpDiff = processed.player.hp - prev.gameState.player.hp;
         const expDiff = processed.player.exp - prev.gameState.player.exp;
         const goldDiff = processed.player.gold - prev.gameState.player.gold;
 
         let message: string | null = null;
-        if (hpDiff > 0n) {
-          message = `休息: HP ${hpDiff.toString()} 回復`;
-        } else if (expDiff > 0n || goldDiff > 0n) {
+        if (expDiff > 0n || goldDiff > 0n) {
           message = `宝箱: EXP +${expDiff.toString()}, Gold +${goldDiff.toString()}`;
         }
 
@@ -136,6 +133,33 @@ export function useGameState() {
     });
   }, []);
 
+  /** 戦闘準備画面での回復 */
+  const heal = useCallback(() => {
+    setState((prev) => {
+      if (prev.gameState.phase !== "battlePrep") return prev;
+      if (prev.gameState.healCount <= 0) return prev;
+      const healed = healInPrep(prev.gameState);
+      return {
+        ...prev,
+        gameState: healed,
+        battleState: prev.battleState
+          ? { ...prev.battleState, player: healed.player }
+          : null,
+      };
+    });
+  }, []);
+
+  /** 戦闘準備 → 戦闘開始 */
+  const confirmBattle = useCallback(() => {
+    setState((prev) => {
+      if (prev.gameState.phase !== "battlePrep") return prev;
+      return {
+        ...prev,
+        gameState: startBattle(prev.gameState),
+      };
+    });
+  }, []);
+
   /** リスタート */
   const restart = useCallback(() => {
     setState({
@@ -155,5 +179,7 @@ export function useGameState() {
     chooseWeapon,
     endBattle,
     restart,
+    heal,
+    confirmBattle,
   };
 }

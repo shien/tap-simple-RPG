@@ -10,13 +10,8 @@ export function rollEvent(areaId: AreaId, step: number): EventType {
 
   const table = EVENT_PROBABILITY_TABLE[areaId];
   const r = Math.random();
-  let cumulative = 0;
 
-  cumulative += table.battle;
-  if (r < cumulative) return "battle";
-
-  cumulative += table.rest;
-  if (r < cumulative) return "rest";
+  if (r < table.battle) return "battle";
 
   return "treasure";
 }

@@ -1,12 +1,11 @@
 import type { GameState } from "./types";
-import { AREAS } from "./constants";
+import { AREAS, INITIAL_HEAL_COUNT, BATTLE_PREP_HEAL_RATIO } from "./constants";
 import { createInitialPlayer, heal, addExp } from "./player";
 import { advanceArea } from "./map";
 import { getCurrentEvent } from "./map";
 import { generateAreaEvents, generateUpcomingEvents } from "./event";
 
 // === 定数 ===
-const REST_HEAL_RATIO = 0.3;
 const TREASURE_BASE_EXP = 5n;
 const TREASURE_BASE_GOLD = 10n;
 
@@ -20,6 +19,7 @@ export function createNewGame(): GameState {
     areaEvents,
     upcomingEvents: generateUpcomingEvents(areaEvents, 1),
     phase: "exploration",
+    healCount: INITIAL_HEAL_COUNT,
   };
 }
 
@@ -30,17 +30,7 @@ export function processEvent(state: GameState): GameState {
   switch (event) {
     case "battle":
     case "boss":
-      return { ...state, phase: "battle" };
-
-    case "rest": {
-      const healAmount = BigInt(
-        Math.max(1, Math.floor(Number(state.player.maxHp) * REST_HEAL_RATIO))
-      );
-      return {
-        ...state,
-        player: heal(state.player, healAmount),
-      };
-    }
+      return { ...state, phase: "battlePrep" };
 
     case "treasure": {
       const area = AREAS[state.currentArea - 1];
@@ -54,6 +44,25 @@ export function processEvent(state: GameState): GameState {
       return { ...state, player };
     }
   }
+}
+
+/** 戦闘準備画面での回復処理 */
+export function healInPrep(state: GameState): GameState {
+  if (state.healCount <= 0) return state;
+  const healAmount = BigInt(
+    Math.max(1, Math.floor(Number(state.player.maxHp) * BATTLE_PREP_HEAL_RATIO))
+  );
+  return {
+    ...state,
+    player: heal(state.player, healAmount),
+    healCount: state.healCount - 1,
+  };
+}
+
+/** 戦闘準備から戦闘開始への遷移 */
+export function startBattle(state: GameState): GameState {
+  if (state.phase !== "battlePrep") return state;
+  return { ...state, phase: "battle" };
 }
 
 /** 戦闘勝利後の処理 */
@@ -72,6 +81,7 @@ export function handleBossClear(state: GameState): GameState {
   return {
     ...advanceArea(state),
     phase: "exploration",
+    healCount: state.healCount + 1,
   };
 }
 

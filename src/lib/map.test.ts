@@ -5,9 +5,9 @@ import { createInitialPlayer } from "./player";
 
 const defaultAreaEvents: UpcomingEvent[] = [
   { type: "battle", enemyElement: "water" },
-  { type: "rest" },
   { type: "treasure" },
-  { type: "rest" },
+  { type: "treasure" },
+  { type: "battle", enemyElement: "earth" },
   { type: "battle", enemyElement: "earth" },
   { type: "boss", enemyElement: "thunder" },
 ];
@@ -18,8 +18,9 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
     currentArea: 1,
     currentStep: 1,
     areaEvents: defaultAreaEvents,
-    upcomingEvents: [{ type: "battle" }, { type: "rest" }, { type: "treasure" }],
+    upcomingEvents: [{ type: "treasure" }, { type: "treasure" }, { type: "battle" }],
     phase: "exploration",
+    healCount: 3,
     ...overrides,
   };
 }
@@ -105,9 +106,9 @@ describe("getCurrentEvent", () => {
     expect(getCurrentEvent(state)).toBe("battle");
   });
 
-  it("step=2 で rest を返す", () => {
+  it("step=2 で treasure を返す", () => {
     const state = makeState({ currentStep: 2 });
-    expect(getCurrentEvent(state)).toBe("rest");
+    expect(getCurrentEvent(state)).toBe("treasure");
   });
 
   it("step=6 で boss を返す", () => {

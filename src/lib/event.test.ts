@@ -11,8 +11,8 @@ describe("rollEvent", () => {
     }
   });
 
-  it("step=1〜5 で battle/rest/treasure のいずれかが返る", () => {
-    const valid = ["battle", "rest", "treasure"];
+  it("step=1〜5 で battle/treasure のいずれかが返る", () => {
+    const valid = ["battle", "treasure"];
     for (let step = 1; step <= 5; step++) {
       for (let i = 0; i < 20; i++) {
         expect(valid).toContain(rollEvent(1, step));
@@ -23,15 +23,13 @@ describe("rollEvent", () => {
   it("確率テーブルに従いbattleが最も多い（統計的200回）", () => {
     const counts: Record<string, number> = {
       battle: 0,
-      rest: 0,
       treasure: 0,
     };
     for (let i = 0; i < 200; i++) {
       const ev = rollEvent(1, 1);
       counts[ev]++;
     }
-    // エリア1: battle=0.55 が最多
-    expect(counts.battle).toBeGreaterThan(counts.rest);
+    // エリア1: battle=0.80 が最多
     expect(counts.battle).toBeGreaterThan(counts.treasure);
   });
 });
@@ -49,8 +47,8 @@ describe("generateAreaEvents", () => {
     }
   });
 
-  it("step1〜5 は battle/rest/treasure のいずれか", () => {
-    const valid = ["battle", "rest", "treasure"];
+  it("step1〜5 は battle/treasure のいずれか", () => {
+    const valid = ["battle", "treasure"];
     for (let i = 0; i < 10; i++) {
       const events = generateAreaEvents(1);
       for (let s = 0; s < 5; s++) {
@@ -71,11 +69,11 @@ describe("generateAreaEvents", () => {
     }
   });
 
-  it("rest/treasure イベントに enemyElement が含まれない", () => {
+  it("treasure イベントに enemyElement が含まれない", () => {
     for (let i = 0; i < 50; i++) {
       const events = generateAreaEvents(1);
       for (const ev of events) {
-        if (ev.type === "rest" || ev.type === "treasure") {
+        if (ev.type === "treasure") {
           expect(ev.enemyElement).toBeUndefined();
         }
       }
@@ -111,25 +109,25 @@ describe("generateAreaEvents", () => {
 describe("generateUpcomingEvents", () => {
   const sampleAreaEvents: UpcomingEvent[] = [
     { type: "battle", enemyElement: "water" },
-    { type: "rest" },
     { type: "treasure" },
-    { type: "rest" },
+    { type: "treasure" },
     { type: "battle", enemyElement: "earth" },
+    { type: "battle", enemyElement: "thunder" },
     { type: "boss", enemyElement: "thunder" },
   ];
 
   it("step=1 で 3つ返る（step2,3,4）", () => {
     const events = generateUpcomingEvents(sampleAreaEvents, 1);
     expect(events).toHaveLength(3);
-    expect(events[0]).toEqual({ type: "rest" });
+    expect(events[0]).toEqual({ type: "treasure" });
     expect(events[1]).toEqual({ type: "treasure" });
-    expect(events[2]).toEqual({ type: "rest" });
+    expect(events[2]).toEqual({ type: "battle", enemyElement: "earth" });
   });
 
   it("step=4 で 2つ返る（step5,6）、最後が boss", () => {
     const events = generateUpcomingEvents(sampleAreaEvents, 4);
     expect(events).toHaveLength(2);
-    expect(events[0]).toEqual({ type: "battle", enemyElement: "earth" });
+    expect(events[0]).toEqual({ type: "battle", enemyElement: "thunder" });
     expect(events[1]).toEqual({ type: "boss", enemyElement: "thunder" });
   });
 

@@ -2,11 +2,12 @@
 
 import { useGameState } from "@/hooks/useGameState";
 import { ExplorationView } from "@/components/ExplorationView";
+import { BattlePrepView } from "@/components/BattlePrepView";
 import { BattleView } from "@/components/BattleView";
 import { GameOverView } from "@/components/GameOverView";
 
 export default function Home() {
-  const { gameState, battleState, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart } =
+  const { gameState, battleState, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle } =
     useGameState();
 
   return (
@@ -16,6 +17,15 @@ export default function Home() {
 
         {gameState.phase === "gameover" && (
           <GameOverView onRestart={restart} />
+        )}
+
+        {gameState.phase === "battlePrep" && battleState && (
+          <BattlePrepView
+            battleState={battleState}
+            gameState={gameState}
+            onHeal={heal}
+            onStartBattle={confirmBattle}
+          />
         )}
 
         {gameState.phase === "battle" && battleState && (

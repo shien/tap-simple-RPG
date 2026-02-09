@@ -6,6 +6,8 @@ import {
   handleBossClear,
   handleDeath,
   isGameClear,
+  healInPrep,
+  startBattle,
 } from "./game";
 import * as mapModule from "./map";
 import type { GameState } from "./types";
@@ -44,6 +46,7 @@ describe("createNewGame", () => {
     expect(state.currentArea).toBe(1);
     expect(state.currentStep).toBe(1);
     expect(state.phase).toBe("exploration");
+    expect(state.healCount).toBe(3);
   });
 
   it("areaEvents が6件存在し、最後がboss", () => {
@@ -52,7 +55,7 @@ describe("createNewGame", () => {
     expect(state.areaEvents).toHaveLength(6);
     expect(state.areaEvents[5].type).toBe("boss");
     for (const ev of state.areaEvents) {
-      expect(["battle", "rest", "treasure", "boss"]).toContain(ev.type);
+      expect(["battle", "treasure", "boss"]).toContain(ev.type);
     }
   });
 
@@ -62,7 +65,7 @@ describe("createNewGame", () => {
     // step=1 → 先読み: step 2,3,4 → 3件
     expect(state.upcomingEvents).toHaveLength(3);
     for (const ev of state.upcomingEvents) {
-      expect(["battle", "rest", "treasure", "boss"]).toContain(ev.type);
+      expect(["battle", "treasure", "boss"]).toContain(ev.type);
     }
   });
 
@@ -86,58 +89,24 @@ describe("createNewGame", () => {
 
 describe("processEvent", () => {
   describe("battle / boss", () => {
-    it("battle イベントで phase が 'battle' になる", () => {
+    it("battle イベントで phase が 'battlePrep' になる", () => {
       const state = makeState({ currentStep: 1 });
       getCurrentEventMock.mockReturnValueOnce("battle");
 
       const after = processEvent(state);
 
-      expect(after.phase).toBe("battle");
+      expect(after.phase).toBe("battlePrep");
       expect(after.player.hp).toBe(state.player.hp);
       expect(after.player.gold).toBe(state.player.gold);
     });
 
-    it("boss イベントで phase が 'battle' になる", () => {
+    it("boss イベントで phase が 'battlePrep' になる", () => {
       const state = makeState({ currentStep: 6 });
       getCurrentEventMock.mockReturnValueOnce("boss");
 
       const after = processEvent(state);
 
-      expect(after.phase).toBe("battle");
-    });
-  });
-
-  describe("rest", () => {
-    it("HP が maxHP の 30% 回復する", () => {
-      const state = makeState();
-      state.player = { ...state.player, hp: 20n, maxHp: 50n };
-      getCurrentEventMock.mockReturnValueOnce("rest");
-
-      const after = processEvent({ ...state, player: { ...state.player } });
-
-      // 50 * 0.3 = 15 → 20 + 15 = 35
-      expect(after.player.hp).toBe(35n);
-    });
-
-    it("HP が maxHP を超えない", () => {
-      const state = makeState();
-      state.player = { ...state.player, hp: 45n, maxHp: 50n };
-      getCurrentEventMock.mockReturnValueOnce("rest");
-
-      const after = processEvent({ ...state, player: { ...state.player } });
-
-      // 45 + 15 = 60 → capped at 50
-      expect(after.player.hp).toBe(50n);
-    });
-
-    it("phase は変化しない", () => {
-      const state = makeState();
-      state.player = { ...state.player, hp: 20n };
-      getCurrentEventMock.mockReturnValueOnce("rest");
-
-      const after = processEvent({ ...state, player: { ...state.player } });
-
-      expect(after.phase).toBe("exploration");
+      expect(after.phase).toBe("battlePrep");
     });
   });
 
@@ -219,7 +188,7 @@ describe("handleBattleVictory", () => {
 
 describe("handleBossClear", () => {
   it("エリア1→2 へ遷移", () => {
-    const state = makeState({ currentStep: 6, currentArea: 1 });
+    const state = makeState({ currentStep: 6, currentArea: 1, healCount: 3 });
     const after = handleBossClear(state);
 
     expect(after.currentArea).toBe(2);
@@ -228,18 +197,26 @@ describe("handleBossClear", () => {
     expect(after.upcomingEvents.length).toBeGreaterThan(0);
   });
 
-  it("エリア8→リスタート", () => {
-    const state = makeState({ currentStep: 6, currentArea: 8 });
+  it("ボス撃破で healCount が +1 される", () => {
+    const state = makeState({ currentStep: 6, currentArea: 1, healCount: 3 });
+    const after = handleBossClear(state);
+
+    expect(after.healCount).toBe(4);
+  });
+
+  it("エリア8→リスタート（healCount も 3 にリセット）", () => {
+    const state = makeState({ currentStep: 6, currentArea: 8, healCount: 5 });
     const after = handleBossClear(state);
 
     expect(after.currentArea).toBe(1);
     expect(after.currentStep).toBe(1);
     expect(after.player.level).toBe(1);
+    expect(after.healCount).toBe(3);
   });
 });
 
 describe("handleDeath", () => {
-  it("全進行リセット（Lv1, area=1, step=1）", () => {
+  it("全進行リセット（Lv1, area=1, step=1, healCount=3）", () => {
     const after = handleDeath();
 
     expect(after.player.level).toBe(1);
@@ -249,6 +226,7 @@ describe("handleDeath", () => {
     expect(after.currentArea).toBe(1);
     expect(after.currentStep).toBe(1);
     expect(after.phase).toBe("exploration");
+    expect(after.healCount).toBe(3);
   });
 });
 
@@ -274,6 +252,64 @@ describe("isGameClear", () => {
   });
 });
 
+describe("healInPrep", () => {
+  it("HP が maxHP の 70% 回復する", () => {
+    const state = makeState({ healCount: 3 });
+    state.player = { ...state.player, hp: 20n, maxHp: 100n };
+
+    const after = healInPrep({ ...state, player: { ...state.player } });
+
+    // 100 * 0.7 = 70 → 20 + 70 = 90
+    expect(after.player.hp).toBe(90n);
+    expect(after.healCount).toBe(2);
+  });
+
+  it("HP が maxHP を超えない", () => {
+    const state = makeState({ healCount: 3 });
+    state.player = { ...state.player, hp: 45n, maxHp: 50n };
+
+    const after = healInPrep({ ...state, player: { ...state.player } });
+
+    expect(after.player.hp).toBe(50n);
+  });
+
+  it("healCount が 0 のとき回復しない", () => {
+    const state = makeState({ healCount: 0 });
+    state.player = { ...state.player, hp: 20n, maxHp: 50n };
+
+    const after = healInPrep({ ...state, player: { ...state.player } });
+
+    expect(after.player.hp).toBe(20n);
+    expect(after.healCount).toBe(0);
+  });
+
+  it("healCount がデクリメントされる", () => {
+    const state = makeState({ healCount: 2 });
+
+    const after = healInPrep(state);
+
+    expect(after.healCount).toBe(1);
+  });
+});
+
+describe("startBattle", () => {
+  it("battlePrep → battle に遷移する", () => {
+    const state = makeState({ phase: "battlePrep" });
+
+    const after = startBattle(state);
+
+    expect(after.phase).toBe("battle");
+  });
+
+  it("battlePrep 以外では変化しない", () => {
+    const state = makeState({ phase: "exploration" });
+
+    const after = startBattle(state);
+
+    expect(after.phase).toBe("exploration");
+  });
+});
+
 describe("イミュータブル性", () => {
   it("processEvent は元の state を変更しない", () => {
     const state = makeState();
@@ -281,7 +317,7 @@ describe("イミュータブル性", () => {
       typeof v === "bigint" ? v.toString() : v
     );
 
-    getCurrentEventMock.mockReturnValueOnce("rest");
+    getCurrentEventMock.mockReturnValueOnce("treasure");
     processEvent(state);
 
     const after = JSON.stringify(state, (_k, v) =>
