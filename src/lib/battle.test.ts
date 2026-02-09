@@ -3,7 +3,7 @@ import {
   createBattleState,
   playerAttack,
   enemyAttack,
-  activateDodge,
+  activateGuard,
   checkBattleResult,
   processBattleRewards,
 } from "./battle";
@@ -51,10 +51,10 @@ describe("createBattleState", () => {
     expect(state.enemy).toEqual(enemy);
   });
 
-  it("isDodging=false で初期化される", () => {
+  it("isGuarding=false で初期化される", () => {
     const state = createBattleState(makePlayer(), makeEnemy());
 
-    expect(state.isDodging).toBe(false);
+    expect(state.isGuarding).toBe(false);
   });
 });
 
@@ -118,7 +118,7 @@ describe("playerAttack", () => {
       result: "victory",
       turnCount: 5,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = playerAttack(state);
 
@@ -135,20 +135,20 @@ describe("playerAttack", () => {
   });
 });
 
-describe("activateDodge", () => {
-  it("isDodging=false の時、isDodging=true になる", () => {
+describe("activateGuard", () => {
+  it("isGuarding=false の時、isGuarding=true になる", () => {
     const state = createBattleState(makePlayer(), makeEnemy());
-    const after = activateDodge(state);
+    const after = activateGuard(state);
 
-    expect(after.isDodging).toBe(true);
+    expect(after.isGuarding).toBe(true);
   });
 
-  it("既に isDodging=true の時、状態は変わらない", () => {
+  it("既に isGuarding=true の時、状態は変わらない", () => {
     const state = createBattleState(makePlayer(), makeEnemy());
-    const dodging = activateDodge(state);
-    const after = activateDodge(dodging);
+    const guarding = activateGuard(state);
+    const after = activateGuard(guarding);
 
-    expect(after).toBe(dodging);
+    expect(after).toBe(guarding);
   });
 
   it("result!='ongoing' の時、状態は変わらない", () => {
@@ -158,9 +158,9 @@ describe("activateDodge", () => {
       result: "victory",
       turnCount: 1,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
-    const after = activateDodge(state);
+    const after = activateGuard(state);
 
     expect(after).toBe(state);
   });
@@ -192,49 +192,60 @@ describe("enemyAttack", () => {
       result: "defeat",
       turnCount: 3,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = enemyAttack(state);
 
     expect(after).toBe(state);
   });
 
-  it("isDodging=true の時、プレイヤーはダメージを受けない", () => {
+  it("isGuarding=true の時、プレイヤーは1/10ダメージを受ける", () => {
     const player = makePlayer({ hp: 50n, maxHp: 50n });
     const enemy = makeEnemy({ atk: 20n });
-    const state = activateDodge(createBattleState(player, enemy));
+    const state = activateGuard(createBattleState(player, enemy));
     const after = enemyAttack(state);
 
-    expect(after.player.hp).toBe(50n);
+    // 20 / 10 = 2 → HP: 50 - 2 = 48
+    expect(after.player.hp).toBe(48n);
   });
 
-  it("isDodging=true の時、回避後に isDodging=false になる", () => {
-    const state = activateDodge(createBattleState(makePlayer(), makeEnemy()));
+  it("isGuarding=true でATKが10未満の時、最低1ダメージを受ける", () => {
+    const player = makePlayer({ hp: 50n, maxHp: 50n });
+    const enemy = makeEnemy({ atk: 5n });
+    const state = activateGuard(createBattleState(player, enemy));
     const after = enemyAttack(state);
 
-    expect(after.isDodging).toBe(false);
+    // 5 / 10 = 0 → 最低1 → HP: 50 - 1 = 49
+    expect(after.player.hp).toBe(49n);
+  });
+
+  it("isGuarding=true の時、ガード後に isGuarding=false になる", () => {
+    const state = activateGuard(createBattleState(makePlayer(), makeEnemy()));
+    const after = enemyAttack(state);
+
+    expect(after.isGuarding).toBe(false);
   });
 });
 
-describe("回避サイクル", () => {
-  it("回避 → 回避成功 → 再度回避 → 回避成功 のサイクルが正常に動作する", () => {
+describe("ガードサイクル", () => {
+  it("ガード → 1/10ダメージ → 再度ガード → 1/10ダメージ のサイクルが正常に動作する", () => {
     const player = makePlayer({ hp: 50n, maxHp: 50n });
-    const enemy = makeEnemy({ atk: 10n });
+    const enemy = makeEnemy({ atk: 20n });
     let state = createBattleState(player, enemy);
 
-    // 1回目: 回避 → 敵攻撃（ダメージ無効）
-    state = activateDodge(state);
-    expect(state.isDodging).toBe(true);
+    // 1回目: ガード → 敵攻撃（1/10ダメージ = 2）
+    state = activateGuard(state);
+    expect(state.isGuarding).toBe(true);
     state = enemyAttack(state);
-    expect(state.player.hp).toBe(50n);
-    expect(state.isDodging).toBe(false);
+    expect(state.player.hp).toBe(48n);
+    expect(state.isGuarding).toBe(false);
 
-    // 2回目: 再度回避 → 敵攻撃（ダメージ無効）
-    state = activateDodge(state);
-    expect(state.isDodging).toBe(true);
+    // 2回目: 再度ガード → 敵攻撃（1/10ダメージ = 2）
+    state = activateGuard(state);
+    expect(state.isGuarding).toBe(true);
     state = enemyAttack(state);
-    expect(state.player.hp).toBe(50n);
-    expect(state.isDodging).toBe(false);
+    expect(state.player.hp).toBe(46n);
+    expect(state.isGuarding).toBe(false);
   });
 });
 
@@ -246,7 +257,7 @@ describe("checkBattleResult", () => {
       result: "ongoing",
       turnCount: 1,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = checkBattleResult(state);
 
@@ -260,7 +271,7 @@ describe("checkBattleResult", () => {
       result: "ongoing",
       turnCount: 1,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = checkBattleResult(state);
 
@@ -274,7 +285,7 @@ describe("checkBattleResult", () => {
       result: "ongoing",
       turnCount: 1,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = checkBattleResult(state);
 
@@ -288,7 +299,7 @@ describe("checkBattleResult", () => {
       result: "ongoing",
       turnCount: 1,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = checkBattleResult(state);
 
@@ -304,7 +315,7 @@ describe("processBattleRewards", () => {
       result: "victory",
       turnCount: 3,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -324,7 +335,7 @@ describe("processBattleRewards", () => {
       result: "victory",
       turnCount: 3,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -339,7 +350,7 @@ describe("processBattleRewards", () => {
       result: "victory",
       turnCount: 3,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -356,7 +367,7 @@ describe("processBattleRewards", () => {
       result: "victory",
       turnCount: 3,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -370,7 +381,7 @@ describe("processBattleRewards", () => {
       result: "defeat",
       turnCount: 3,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -386,7 +397,7 @@ describe("processBattleRewards", () => {
       result: "ongoing",
       turnCount: 1,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -401,7 +412,7 @@ describe("processBattleRewards", () => {
       result: "victory",
       turnCount: 3,
       droppedWeapon: null,
-      isDodging: false,
+      isGuarding: false,
     };
     const after = processBattleRewards(state, 1);
 

@@ -23,7 +23,7 @@ export function BattleView({
   gameState,
   onAttack,
   onEnemyAttack,
-  onDodge,
+  onGuard,
   onChooseWeapon,
   onEndBattle,
 }: {
@@ -31,7 +31,7 @@ export function BattleView({
   gameState: GameState;
   onAttack: () => void;
   onEnemyAttack: () => void;
-  onDodge: () => void;
+  onGuard: () => void;
   onChooseWeapon: (weapon: Weapon) => void;
   onEndBattle: () => void;
 }) {
@@ -116,20 +116,25 @@ export function BattleView({
       <div className="flex gap-3">
         <button
           onClick={onAttack}
-          className="flex-1 rounded-full bg-red-600 py-5 text-xl font-bold text-white active:bg-red-700"
+          disabled={battleState.isGuarding}
+          className={`flex-1 rounded-full py-5 text-xl font-bold text-white ${
+            battleState.isGuarding
+              ? "bg-red-400"
+              : "bg-red-600 active:bg-red-700"
+          }`}
         >
           攻撃!
         </button>
         <button
-          onClick={onDodge}
-          disabled={battleState.isDodging}
+          onClick={onGuard}
+          disabled={battleState.isGuarding}
           className={`flex-1 rounded-full py-5 text-xl font-bold text-white ${
-            battleState.isDodging
+            battleState.isGuarding
               ? "bg-blue-500"
               : "bg-blue-600 active:bg-blue-700"
           }`}
         >
-          {battleState.isDodging ? "回避準備中!" : "回避"}
+          {battleState.isGuarding ? "ガード中!" : "ガード"}
         </button>
       </div>
     </div>
