@@ -32,12 +32,14 @@ describe("generateWeaponDrop", () => {
     }
   });
 
-  it("設定にないエリアではフォールバック名が返る", () => {
-    // エリア7には武器設定がない → フォールバック
-    const candidates = getWeaponsForArea(7);
-    if (candidates.length === 0) {
-      const w = generateWeaponDrop(7);
-      expect(w.name).toBe("謎の武器");
+  it("全エリアで設定された武器名が返る", () => {
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const candidates = getWeaponsForArea(areaId as AreaId);
+      const names = candidates.map((c) => c.name);
+      for (let i = 0; i < 10; i++) {
+        const w = generateWeaponDrop(areaId as AreaId);
+        expect(names).toContain(w.name);
+      }
     }
   });
 
