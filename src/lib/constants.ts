@@ -33,7 +33,7 @@ export const ABNORMAL_HP_MULTIPLIERS: Record<number, number> = {
 export const ABNORMAL_EXP_MULTIPLIER = 100;
 
 // === エリアデータ（8エリア） ===
-// 後半ほど指数的に急激にスケール（元の指数成長率を2倍にした桁インフレ設計）
+// 後半ほど指数的にスケール（緩やかな指数成長設計）
 export const AREAS: readonly AreaConfig[] = [
   {
     id: 1,
@@ -41,7 +41,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 0,
     enemyHpMultiplier: 1,
     enemyAtkMultiplier: 1,
-    rewardMultiplier: 4,
+    rewardMultiplier: 2,
     elementDistribution: { water: 0.33, earth: 0.33, thunder: 0.34 },
     abnormalRate: 0.055,
     bossMultiplier: 4,
@@ -53,7 +53,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 4,
     enemyHpMultiplier: 9,
     enemyAtkMultiplier: 9,
-    rewardMultiplier: 64,
+    rewardMultiplier: 8,
     elementDistribution: { water: 0.3, earth: 0.3, thunder: 0.4 },
     abnormalRate: 0.06,
     bossMultiplier: 6,
@@ -65,7 +65,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 10,
     enemyHpMultiplier: 100,
     enemyAtkMultiplier: 144,
-    rewardMultiplier: 1600,
+    rewardMultiplier: 40,
     elementDistribution: { water: 0.2, earth: 0.2, thunder: 0.6 },
     abnormalRate: 0.07,
     bossMultiplier: 9,
@@ -77,7 +77,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 18,
     enemyHpMultiplier: 1600,
     enemyAtkMultiplier: 3600,
-    rewardMultiplier: 62500,
+    rewardMultiplier: 250,
     elementDistribution: { water: 0.2, earth: 0.5, thunder: 0.3 },
     abnormalRate: 0.09,
     bossMultiplier: 16,
@@ -89,7 +89,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 28,
     enemyHpMultiplier: 40000,
     enemyAtkMultiplier: 122500,
-    rewardMultiplier: 4000000,
+    rewardMultiplier: 2000,
     elementDistribution: { water: 0.15, earth: 0.55, thunder: 0.3 },
     abnormalRate: 0.12,
     bossMultiplier: 25,
@@ -101,7 +101,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 40,
     enemyHpMultiplier: 1440000,
     enemyAtkMultiplier: 6250000,
-    rewardMultiplier: 400000000,
+    rewardMultiplier: 20000,
     elementDistribution: { water: 0.6, earth: 0.15, thunder: 0.25 },
     abnormalRate: 0.15,
     bossMultiplier: 36,
@@ -113,7 +113,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 55,
     enemyHpMultiplier: 64000000,
     enemyAtkMultiplier: 400000000,
-    rewardMultiplier: 62500000000,
+    rewardMultiplier: 250000,
     elementDistribution: { water: 0.35, earth: 0.35, thunder: 0.3 },
     abnormalRate: 0.19,
     bossMultiplier: 64,
@@ -125,7 +125,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 75,
     enemyHpMultiplier: 3600000000,
     enemyAtkMultiplier: 40000000000,
-    rewardMultiplier: 25000000000000,
+    rewardMultiplier: 5000000,
     elementDistribution: { water: 0.33, earth: 0.33, thunder: 0.34 },
     abnormalRate: 0.23,
     bossMultiplier: 144,
