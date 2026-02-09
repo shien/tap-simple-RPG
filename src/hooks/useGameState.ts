@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from "react";
 import type { GameState, BattleState, Weapon } from "@/lib/types";
-import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle } from "@/lib/game";
+import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle, processTreasureHeal, processTreasureWeapon } from "@/lib/game";
+import { generateWeaponDrop } from "@/lib/weapon";
 import { advanceStep } from "@/lib/map";
 import {
   createBattleState,
@@ -17,6 +18,7 @@ import { generateEnemy, generateBoss } from "@/lib/enemy";
 type CombinedState = {
   gameState: GameState;
   battleState: BattleState | null;
+  treasureWeapon: Weapon | null;
   message: string | null;
 };
 
@@ -24,6 +26,7 @@ function createInitialState(): CombinedState {
   return {
     gameState: createNewGame(),
     battleState: null,
+    treasureWeapon: null,
     message: null,
   };
 }
@@ -49,21 +52,23 @@ export function useGameState() {
         return {
           gameState: processed,
           battleState: createBattleState(processed.player, enemy),
+          treasureWeapon: null,
           message: null,
         };
-      } else {
-        const expDiff = processed.player.exp - prev.gameState.player.exp;
-        const goldDiff = processed.player.gold - prev.gameState.player.gold;
-
-        let message: string | null = null;
-        if (expDiff > 0n || goldDiff > 0n) {
-          message = `宝箱: EXP +${expDiff.toString()}, Gold +${goldDiff.toString()}`;
-        }
-
+      } else if (processed.phase === "treasureSelect") {
+        const weapon = generateWeaponDrop(stepped.currentArea);
         return {
           gameState: processed,
           battleState: null,
-          message,
+          treasureWeapon: weapon,
+          message: null,
+        };
+      } else {
+        return {
+          gameState: processed,
+          battleState: null,
+          treasureWeapon: null,
+          message: null,
         };
       }
     });
@@ -119,12 +124,14 @@ export function useGameState() {
         return {
           gameState: handleBattleVictory(updated),
           battleState: null,
+          treasureWeapon: null,
           message: null,
         };
       } else if (prev.battleState.result === "defeat") {
         return {
           gameState: handleDeath(),
           battleState: null,
+          treasureWeapon: null,
           message: null,
         };
       }
@@ -160,11 +167,38 @@ export function useGameState() {
     });
   }, []);
 
+  /** 宝箱: 回復アイテムを選択 */
+  const chooseTreasureHeal = useCallback(() => {
+    setState((prev) => {
+      if (prev.gameState.phase !== "treasureSelect") return prev;
+      return {
+        gameState: processTreasureHeal(prev.gameState),
+        battleState: null,
+        treasureWeapon: null,
+        message: null,
+      };
+    });
+  }, []);
+
+  /** 宝箱: 武器を選択 */
+  const chooseTreasureWeapon = useCallback(() => {
+    setState((prev) => {
+      if (prev.gameState.phase !== "treasureSelect" || !prev.treasureWeapon) return prev;
+      return {
+        gameState: processTreasureWeapon(prev.gameState, prev.treasureWeapon),
+        battleState: null,
+        treasureWeapon: null,
+        message: null,
+      };
+    });
+  }, []);
+
   /** リスタート */
   const restart = useCallback(() => {
     setState({
       gameState: handleDeath(),
       battleState: null,
+      treasureWeapon: null,
       message: null,
     });
   }, []);
@@ -172,6 +206,7 @@ export function useGameState() {
   return {
     gameState: state.gameState,
     battleState: state.battleState,
+    treasureWeapon: state.treasureWeapon,
     message: state.message,
     move,
     attack,
@@ -181,5 +216,7 @@ export function useGameState() {
     restart,
     heal,
     confirmBattle,
+    chooseTreasureHeal,
+    chooseTreasureWeapon,
   };
 }

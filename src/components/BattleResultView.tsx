@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { BattleState, UpcomingEvent, Weapon } from "@/lib/types";
 import { ABNORMAL_EXP_MULTIPLIER } from "@/lib/constants";
 import { ElementBadge } from "./ElementBadge";
@@ -6,16 +9,22 @@ import { EventPreview } from "./EventPreview";
 function WeaponCard({
   weapon,
   label,
+  selected,
   onSelect,
 }: {
   weapon: Weapon;
   label: string;
+  selected: boolean;
   onSelect: () => void;
 }) {
   return (
     <button
       onClick={onSelect}
-      className="flex-1 rounded-lg border-2 border-zinc-600 bg-zinc-800 p-3 text-left transition-colors active:border-blue-500 active:bg-zinc-700"
+      className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors ${
+        selected
+          ? "border-blue-500 bg-zinc-700"
+          : "border-zinc-600 bg-zinc-800 active:border-blue-500 active:bg-zinc-700"
+      }`}
     >
       <p className="mb-1 text-xs text-zinc-400">{label}</p>
       <p className="font-bold">{weapon.name}</p>
@@ -42,6 +51,7 @@ export function BattleResultView({
   onChooseWeapon: (weapon: Weapon) => void;
   onContinue: () => void;
 }) {
+  const [selectedWeapon, setSelectedWeapon] = useState<"current" | "dropped" | null>(null);
   const isVictory = battleState.result === "victory";
   const enemy = battleState.enemy;
 
@@ -51,6 +61,14 @@ export function BattleResultView({
     const currentWeapon = battleState.player.weapon;
     const droppedWeapon = battleState.droppedWeapon;
     const hasChosen = droppedWeapon === null;
+
+    const handleConfirm = () => {
+      if (selectedWeapon === "current") {
+        onChooseWeapon(currentWeapon);
+      } else if (selectedWeapon === "dropped" && droppedWeapon) {
+        onChooseWeapon(droppedWeapon);
+      }
+    };
 
     return (
       <div className="flex flex-col items-center gap-4 rounded-lg border border-zinc-600 bg-zinc-800 p-6">
@@ -78,14 +96,27 @@ export function BattleResultView({
               <WeaponCard
                 weapon={currentWeapon}
                 label="現在の武器"
-                onSelect={() => onChooseWeapon(currentWeapon)}
+                selected={selectedWeapon === "current"}
+                onSelect={() => setSelectedWeapon("current")}
               />
               <WeaponCard
                 weapon={droppedWeapon}
                 label="ドロップ武器"
-                onSelect={() => onChooseWeapon(droppedWeapon)}
+                selected={selectedWeapon === "dropped"}
+                onSelect={() => setSelectedWeapon("dropped")}
               />
             </div>
+            <button
+              onClick={handleConfirm}
+              disabled={selectedWeapon === null}
+              className={`mt-3 w-full rounded-lg py-3 text-lg font-bold ${
+                selectedWeapon !== null
+                  ? "bg-blue-600 text-white active:bg-blue-700"
+                  : "bg-zinc-700 text-zinc-500 cursor-not-allowed"
+              }`}
+            >
+              決定
+            </button>
           </div>
         )}
 

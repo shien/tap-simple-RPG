@@ -1,13 +1,12 @@
-import type { GameState } from "./types";
+import type { GameState, Weapon } from "./types";
 import { AREAS, INITIAL_HEAL_COUNT, BATTLE_PREP_HEAL_RATIO } from "./constants";
-import { createInitialPlayer, heal, addExp } from "./player";
+import { createInitialPlayer, heal } from "./player";
 import { advanceArea } from "./map";
 import { getCurrentEvent } from "./map";
 import { generateAreaEvents, generateUpcomingEvents } from "./event";
 
-// === 定数 ===
-const TREASURE_BASE_EXP = 5n;
-const TREASURE_BASE_GOLD = 10n;
+/** 宝箱回復アイテムの回復割合（MaxHPの70%） */
+const TREASURE_HEAL_RATIO = 0.7;
 
 /** 新しいゲームを初期化する */
 export function createNewGame(): GameState {
@@ -32,17 +31,8 @@ export function processEvent(state: GameState): GameState {
     case "boss":
       return { ...state, phase: "battlePrep" };
 
-    case "treasure": {
-      const area = AREAS[state.currentArea - 1];
-      const exp = TREASURE_BASE_EXP * BigInt(Math.floor(area.rewardMultiplier));
-      const gold =
-        TREASURE_BASE_GOLD * BigInt(Math.floor(area.rewardMultiplier));
-      const player = addExp(
-        { ...state.player, gold: state.player.gold + gold },
-        exp
-      );
-      return { ...state, player };
-    }
+    case "treasure":
+      return { ...state, phase: "treasureSelect" };
   }
 }
 
@@ -63,6 +53,29 @@ export function healInPrep(state: GameState): GameState {
 export function startBattle(state: GameState): GameState {
   if (state.phase !== "battlePrep") return state;
   return { ...state, phase: "battle" };
+}
+
+/** 宝箱で回復アイテムを選択した場合の処理 */
+export function processTreasureHeal(state: GameState): GameState {
+  if (state.phase !== "treasureSelect") return state;
+  const healAmount = BigInt(
+    Math.max(1, Math.floor(Number(state.player.maxHp) * TREASURE_HEAL_RATIO))
+  );
+  return {
+    ...state,
+    player: heal(state.player, healAmount),
+    phase: "exploration",
+  };
+}
+
+/** 宝箱で武器を選択した場合の処理 */
+export function processTreasureWeapon(state: GameState, weapon: Weapon): GameState {
+  if (state.phase !== "treasureSelect") return state;
+  return {
+    ...state,
+    player: { ...state.player, weapon },
+    phase: "exploration",
+  };
 }
 
 /** 戦闘勝利後の処理 */

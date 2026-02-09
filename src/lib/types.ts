@@ -99,6 +99,6 @@ export type GameState = {
   currentStep: number; // 1〜6
   areaEvents: UpcomingEvent[]; // エリア内のstep1〜5の事前生成イベント列
   upcomingEvents: UpcomingEvent[];
-  phase: "exploration" | "battlePrep" | "battle" | "event" | "gameover";
+  phase: "exploration" | "battlePrep" | "battle" | "event" | "treasureSelect" | "gameover";
   healCount: number; // 回復残回数（初期3、ボス撃破で+1）
 };
