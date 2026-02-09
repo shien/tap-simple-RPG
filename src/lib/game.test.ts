@@ -13,6 +13,7 @@ import {
 } from "./game";
 import * as mapModule from "./map";
 import type { GameState } from "./types";
+import { STEPS_PER_AREA } from "./constants";
 
 // getCurrentEvent をモック可能にする
 vi.mock("./map", async () => {
@@ -51,11 +52,11 @@ describe("createNewGame", () => {
     expect(state.healCount).toBe(3);
   });
 
-  it("areaEvents が6件存在し、最後がboss", () => {
+  it(`areaEvents が${STEPS_PER_AREA}件存在し、最後がboss`, () => {
     const state = createNewGame();
 
-    expect(state.areaEvents).toHaveLength(6);
-    expect(state.areaEvents[5].type).toBe("boss");
+    expect(state.areaEvents).toHaveLength(STEPS_PER_AREA);
+    expect(state.areaEvents[STEPS_PER_AREA - 1].type).toBe("boss");
     for (const ev of state.areaEvents) {
       expect(["battle", "treasure", "boss"]).toContain(ev.type);
     }
@@ -103,7 +104,7 @@ describe("processEvent", () => {
     });
 
     it("boss イベントで phase が 'battlePrep' になる", () => {
-      const state = makeState({ currentStep: 6 });
+      const state = makeState({ currentStep: STEPS_PER_AREA });
       getCurrentEventMock.mockReturnValueOnce("boss");
 
       const after = processEvent(state);
@@ -146,9 +147,9 @@ describe("handleBattleVictory", () => {
     expect(after.currentArea).toBe(1);
   });
 
-  it("ボス（step=6）後に次エリアへ遷移", () => {
+  it(`ボス（step=${STEPS_PER_AREA}）後に次エリアへ遷移`, () => {
     const state = makeState({
-      currentStep: 6,
+      currentStep: STEPS_PER_AREA,
       currentArea: 1,
       phase: "battle",
     });
@@ -161,7 +162,7 @@ describe("handleBattleVictory", () => {
 
   it("エリア7ボス撃破でエリア8へ", () => {
     const state = makeState({
-      currentStep: 6,
+      currentStep: STEPS_PER_AREA,
       currentArea: 7,
       phase: "battle",
     });
@@ -174,7 +175,7 @@ describe("handleBattleVictory", () => {
 
   it("エリア8ボス撃破でリスタート（クリア）", () => {
     const state = makeState({
-      currentStep: 6,
+      currentStep: STEPS_PER_AREA,
       currentArea: 8,
       phase: "battle",
     });
@@ -190,7 +191,7 @@ describe("handleBattleVictory", () => {
 
 describe("handleBossClear", () => {
   it("エリア1→2 へ遷移", () => {
-    const state = makeState({ currentStep: 6, currentArea: 1, healCount: 3 });
+    const state = makeState({ currentStep: STEPS_PER_AREA, currentArea: 1, healCount: 3 });
     const after = handleBossClear(state);
 
     expect(after.currentArea).toBe(2);
@@ -200,14 +201,14 @@ describe("handleBossClear", () => {
   });
 
   it("ボス撃破で healCount が +1 される", () => {
-    const state = makeState({ currentStep: 6, currentArea: 1, healCount: 3 });
+    const state = makeState({ currentStep: STEPS_PER_AREA, currentArea: 1, healCount: 3 });
     const after = handleBossClear(state);
 
     expect(after.healCount).toBe(4);
   });
 
   it("エリア8→リスタート（healCount も 3 にリセット）", () => {
-    const state = makeState({ currentStep: 6, currentArea: 8, healCount: 5 });
+    const state = makeState({ currentStep: STEPS_PER_AREA, currentArea: 8, healCount: 5 });
     const after = handleBossClear(state);
 
     expect(after.currentArea).toBe(1);
@@ -233,18 +234,18 @@ describe("handleDeath", () => {
 });
 
 describe("isGameClear", () => {
-  it("エリア8 step=6 で true", () => {
-    const state = makeState({ currentArea: 8, currentStep: 6 });
+  it(`エリア8 step=${STEPS_PER_AREA} で true`, () => {
+    const state = makeState({ currentArea: 8, currentStep: STEPS_PER_AREA });
     expect(isGameClear(state)).toBe(true);
   });
 
-  it("エリア8 step!=6 で false", () => {
+  it(`エリア8 step!=${STEPS_PER_AREA} で false`, () => {
     const state = makeState({ currentArea: 8, currentStep: 3 });
     expect(isGameClear(state)).toBe(false);
   });
 
   it("エリア8 以外で false", () => {
-    const state = makeState({ currentArea: 3, currentStep: 6 });
+    const state = makeState({ currentArea: 3, currentStep: STEPS_PER_AREA });
     expect(isGameClear(state)).toBe(false);
   });
 

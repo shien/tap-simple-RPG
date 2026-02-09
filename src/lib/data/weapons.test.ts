@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { WEAPONS, getWeaponsForArea } from "./weapons";
 
 describe("WEAPONS", () => {
-  it("5件以上の武器が定義されている", () => {
-    expect(WEAPONS.length).toBeGreaterThanOrEqual(5);
+  it("30件の武器が定義されている", () => {
+    expect(WEAPONS.length).toBe(30);
   });
 
   it("全武器に必須フィールドが存在する", () => {
@@ -32,19 +32,21 @@ describe("WEAPONS", () => {
 });
 
 describe("getWeaponsForArea", () => {
-  it("エリア1の武器候補が取得できる", () => {
-    const weapons = getWeaponsForArea(1);
-    expect(weapons.length).toBeGreaterThan(0);
-    for (const w of weapons) {
-      expect(w.areaIds).toContain(1);
+  it("全8エリアに武器候補が存在する", () => {
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const weapons = getWeaponsForArea(areaId);
+      expect(weapons.length).toBeGreaterThan(0);
+      for (const w of weapons) {
+        expect(w.areaIds).toContain(areaId);
+      }
     }
   });
 
-  it("エリア3の武器候補が取得できる", () => {
-    const weapons = getWeaponsForArea(3);
-    expect(weapons.length).toBeGreaterThan(0);
-    for (const w of weapons) {
-      expect(w.areaIds).toContain(3);
+  it("各エリアに複数属性の武器が含まれる", () => {
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const weapons = getWeaponsForArea(areaId);
+      const elements = new Set(weapons.map((w) => w.element));
+      expect(elements.size).toBeGreaterThanOrEqual(2);
     }
   });
 });

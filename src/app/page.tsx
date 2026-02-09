@@ -1,21 +1,30 @@
 "use client";
 
+import { useState } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { ExplorationView } from "@/components/ExplorationView";
 import { BattlePrepView } from "@/components/BattlePrepView";
 import { BattleView } from "@/components/BattleView";
 import { TreasureSelectView } from "@/components/TreasureSelectView";
 import { GameOverView } from "@/components/GameOverView";
+import { StartScreen } from "@/components/StartScreen";
 
 export default function Home() {
-  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, dodge, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon } =
+  const [started, setStarted] = useState(false);
+  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon } =
     useGameState();
+
+  if (!started) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-900 text-zinc-100">
+        <StartScreen onStart={() => setStarted(true)} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-900 text-zinc-100">
       <main className="w-full max-w-md px-4 py-6">
-        <h1 className="mb-4 text-center text-2xl font-bold">タップRPG</h1>
-
         {gameState.phase === "gameover" && (
           <GameOverView onRestart={restart} />
         )}

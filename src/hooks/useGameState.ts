@@ -5,6 +5,7 @@ import type { GameState, BattleState, Weapon } from "@/lib/types";
 import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle, processTreasureHeal, processTreasureWeapon } from "@/lib/game";
 import { generateWeaponDrop } from "@/lib/weapon";
 import { advanceStep } from "@/lib/map";
+import { STEPS_PER_AREA } from "@/lib/constants";
 import {
   createBattleState,
   playerAttack,
@@ -47,7 +48,7 @@ export function useGameState() {
         const currentEvent = stepped.areaEvents[stepped.currentStep - 1];
         const presetElement = currentEvent?.enemyElement;
         const enemy =
-          stepped.currentStep === 6
+          stepped.currentStep === STEPS_PER_AREA
             ? generateBoss(stepped.currentArea, presetElement)
             : generateEnemy(stepped.currentArea, presetElement);
         return {
