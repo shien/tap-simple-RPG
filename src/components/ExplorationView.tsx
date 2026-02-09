@@ -24,7 +24,7 @@ export function ExplorationView({
       </p>
       <button
         onClick={onMove}
-        className="w-full rounded-lg bg-blue-600 py-4 text-lg font-bold text-white active:bg-blue-700"
+        className="w-full rounded-full bg-blue-600 py-4 text-lg font-bold text-white active:bg-blue-700"
       >
         進む
       </button>

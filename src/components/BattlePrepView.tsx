@@ -35,7 +35,7 @@ export function BattlePrepView({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-center text-xl font-bold text-yellow-400">
+      <h2 className="mx-auto rounded-2xl bg-yellow-900/70 border border-yellow-600 px-8 py-3 text-center text-xl font-bold text-yellow-300 shadow-lg">
         戦闘準備
       </h2>
 
@@ -78,7 +78,7 @@ export function BattlePrepView({
       <button
         onClick={onHeal}
         disabled={!canHeal}
-        className={`w-full rounded-lg py-4 text-lg font-bold ${
+        className={`w-full rounded-full py-4 text-lg font-bold ${
           canHeal
             ? "bg-green-700 text-white active:bg-green-800"
             : "bg-zinc-700 text-zinc-500 cursor-not-allowed"
@@ -90,7 +90,7 @@ export function BattlePrepView({
       {/* 戦闘開始ボタン */}
       <button
         onClick={onStartBattle}
-        className="w-full rounded-lg bg-red-600 py-5 text-xl font-bold text-white active:bg-red-700"
+        className="w-full rounded-full bg-red-600 py-5 text-xl font-bold text-white active:bg-red-700"
       >
         戦闘開始!
       </button>

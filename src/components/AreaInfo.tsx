@@ -12,7 +12,7 @@ export function AreaInfo({
 
   return (
     <div className="text-center">
-      <h2 className="mb-2 text-xl font-bold">{area.name}</h2>
+      <h2 className="mb-2 inline-block rounded-xl bg-zinc-700 border border-zinc-500 px-6 py-2 text-xl font-bold text-white shadow">{area.name}</h2>
       <div className="flex items-center justify-center gap-2">
         {Array.from({ length: STEPS_PER_AREA }, (_, i) => i + 1).map((step) => (
           <div
