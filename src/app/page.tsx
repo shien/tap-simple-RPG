@@ -8,7 +8,7 @@ import { TreasureSelectView } from "@/components/TreasureSelectView";
 import { GameOverView } from "@/components/GameOverView";
 
 export default function Home() {
-  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon } =
+  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, dodge, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon } =
     useGameState();
 
   return (
@@ -44,6 +44,7 @@ export default function Home() {
             gameState={gameState}
             onAttack={attack}
             onEnemyAttack={enemyAttack}
+            onDodge={dodge}
             onChooseWeapon={chooseWeapon}
             onEndBattle={endBattle}
           />

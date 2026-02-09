@@ -12,6 +12,7 @@ export function createBattleState(player: Player, enemy: Enemy): BattleState {
     result: "ongoing",
     turnCount: 0,
     droppedWeapon: null,
+    isDodging: false,
   };
 }
 
@@ -32,10 +33,30 @@ export function playerAttack(state: BattleState): BattleState {
   };
 }
 
+/** 回避を発動する */
+export function activateDodge(state: BattleState): BattleState {
+  if (state.result !== "ongoing") return state;
+  if (state.isDodging) return state;
+
+  return {
+    ...state,
+    isDodging: true,
+  };
+}
+
 /** 敵の自動攻撃 */
 export function enemyAttack(state: BattleState): BattleState {
   if (state.result !== "ongoing") return state;
 
+  // 回避準備中 → ダメージ無効化
+  if (state.isDodging) {
+    return {
+      ...state,
+      isDodging: false,
+    };
+  }
+
+  // 通常被弾
   const newPlayer = takeDamage(state.player, state.enemy.atk);
 
   return {
