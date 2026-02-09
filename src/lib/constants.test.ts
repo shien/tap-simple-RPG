@@ -73,12 +73,20 @@ describe("AREAS", () => {
     expect(AREAS[7].individualVariation.max).toBe(2.6);
   });
 
-  it("草原の異常個体出現率が0.5%", () => {
-    expect(AREAS[0].abnormalRate).toBeCloseTo(0.005, 6);
+  it("草原の異常個体出現率が5.5%", () => {
+    expect(AREAS[0].abnormalRate).toBeCloseTo(0.055, 6);
   });
 
-  it("魔王城の異常個体出現率が18%", () => {
-    expect(AREAS[7].abnormalRate).toBeCloseTo(0.18, 6);
+  it("魔王城の異常個体出現率が23%", () => {
+    expect(AREAS[7].abnormalRate).toBeCloseTo(0.23, 6);
+  });
+
+  it("後半エリアほど報酬倍率が高い", () => {
+    for (let i = 1; i < AREAS.length; i++) {
+      expect(AREAS[i].rewardMultiplier).toBeGreaterThan(
+        AREAS[i - 1].rewardMultiplier
+      );
+    }
   });
 });
 

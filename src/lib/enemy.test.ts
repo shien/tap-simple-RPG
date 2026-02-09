@@ -130,39 +130,29 @@ describe("generateEnemy", () => {
   });
 
   it("異常個体はHPが少し高いがATKは通常と同等（統計的）", () => {
-    // abnormalRate=1で全て異常個体にする
-    const area = { ...AREAS[0], abnormalRate: 1 };
-    const normalArea = { ...AREAS[0], abnormalRate: 0 };
-
     let abnormalHpSum = 0n;
-    let abnormalAtkSum = 0n;
+    let abnormalCount = 0;
     let normalHpSum = 0n;
-    let normalAtkSum = 0n;
-    const trials = 50;
+    let normalCount = 0;
+    const trials = 200;
 
-    // 異常個体のrollAbnormalをモック的に使うため、直接generateEnemyを使う
-    // abnormalRate=1のエリアで生成
     for (let i = 0; i < trials; i++) {
       const e = generateEnemy(1);
       if (e.isAbnormal) {
         abnormalHpSum += e.hp;
-        abnormalAtkSum += e.atk;
-      }
-    }
-
-    // 通常個体のみ（abnormalRate=0.005なのでほぼ全て通常）
-    for (let i = 0; i < trials; i++) {
-      const e = generateEnemy(1);
-      if (!e.isAbnormal) {
+        abnormalCount++;
+      } else {
         normalHpSum += e.hp;
-        normalAtkSum += e.atk;
+        normalCount++;
       }
     }
 
-    // 異常個体がいた場合のみ検証
-    if (abnormalHpSum > 0n && normalHpSum > 0n) {
-      // HPは異常個体の方が少し高い
-      expect(abnormalHpSum).toBeGreaterThan(normalHpSum);
+    // 異常個体・通常個体が両方いた場合のみ平均HPを比較
+    if (abnormalCount > 0 && normalCount > 0) {
+      const abnormalAvg = abnormalHpSum / BigInt(abnormalCount);
+      const normalAvg = normalHpSum / BigInt(normalCount);
+      // HPは異常個体の方が少し高い（HP倍率が1.2〜2.0倍）
+      expect(abnormalAvg).toBeGreaterThan(normalAvg);
     }
   });
 
