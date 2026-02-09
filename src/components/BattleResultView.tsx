@@ -57,12 +57,6 @@ export function BattleResultView({
         <h3 className="text-2xl font-bold text-green-400">勝利!</h3>
         <p className="text-zinc-300">{enemy.name} を倒した</p>
 
-        {enemy.isAbnormal && (
-          <p className="text-lg font-bold text-red-400">
-            異常個体撃破! EXP x{ABNORMAL_EXP_MULTIPLIER}
-          </p>
-        )}
-
         <div className="flex gap-6 text-sm">
           <span className="text-blue-300">EXP +{totalExp.toString()}</span>
           <span className="text-yellow-300">Gold +{enemy.goldReward.toString()}</span>
