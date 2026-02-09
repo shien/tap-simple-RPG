@@ -7,6 +7,7 @@ import { BattlePrepView } from "@/components/BattlePrepView";
 import { BattleView } from "@/components/BattleView";
 import { TreasureSelectView } from "@/components/TreasureSelectView";
 import { GameOverView } from "@/components/GameOverView";
+import { GameClearView } from "@/components/GameClearView";
 import { StartScreen } from "@/components/StartScreen";
 
 export default function Home() {
@@ -25,6 +26,10 @@ export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-900 text-zinc-100">
       <main className="w-full max-w-md px-4 py-6">
+        {gameState.phase === "gameClear" && (
+          <GameClearView onRestart={() => { restart(); setStarted(false); }} />
+        )}
+
         {gameState.phase === "gameover" && (
           <GameOverView onRestart={restart} />
         )}

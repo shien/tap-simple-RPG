@@ -89,7 +89,7 @@ export function handleBattleVictory(state: GameState): GameState {
 /** ボス撃破後の処理 */
 export function handleBossClear(state: GameState): GameState {
   if (state.currentArea === 8) {
-    return createNewGame();
+    return { ...state, phase: "gameClear" };
   }
   return {
     ...advanceArea(state),
