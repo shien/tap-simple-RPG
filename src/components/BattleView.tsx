@@ -116,14 +116,14 @@ export function BattleView({
       <div className="flex gap-3">
         <button
           onClick={onAttack}
-          className="flex-1 rounded-lg bg-red-600 py-5 text-xl font-bold text-white active:bg-red-700"
+          className="flex-1 rounded-full bg-red-600 py-5 text-xl font-bold text-white active:bg-red-700"
         >
           攻撃!
         </button>
         <button
           onClick={onDodge}
           disabled={battleState.isDodging}
-          className={`flex-1 rounded-lg py-5 text-xl font-bold text-white ${
+          className={`flex-1 rounded-full py-5 text-xl font-bold text-white ${
             battleState.isDodging
               ? "bg-blue-500"
               : "bg-blue-600 active:bg-blue-700"

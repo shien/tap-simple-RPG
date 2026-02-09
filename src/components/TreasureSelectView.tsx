@@ -36,7 +36,7 @@ export function TreasureSelectView({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-center text-xl font-bold text-yellow-400">
+      <h2 className="mx-auto rounded-2xl bg-yellow-900/70 border border-yellow-600 px-8 py-3 text-center text-xl font-bold text-yellow-300 shadow-lg">
         宝箱を発見!
       </h2>
 
@@ -104,7 +104,7 @@ export function TreasureSelectView({
       <button
         onClick={handleConfirm}
         disabled={selected === null}
-        className={`w-full rounded-lg py-4 text-lg font-bold ${
+        className={`w-full rounded-full py-4 text-lg font-bold ${
           selected !== null
             ? "bg-blue-600 text-white active:bg-blue-700"
             : "bg-zinc-700 text-zinc-500 cursor-not-allowed"

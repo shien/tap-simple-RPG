@@ -72,7 +72,7 @@ export function BattleResultView({
 
     return (
       <div className="flex flex-col items-center gap-4 rounded-lg border border-zinc-600 bg-zinc-800 p-6">
-        <h3 className="text-2xl font-bold text-green-400">勝利!</h3>
+        <h3 className="rounded-2xl bg-green-900/70 border border-green-500 px-8 py-3 text-2xl font-bold text-green-300 shadow-lg">勝利!</h3>
         <p className="text-zinc-300">{enemy.name} を倒した</p>
 
         <div className="flex gap-6 text-sm">
@@ -103,7 +103,7 @@ export function BattleResultView({
             <button
               onClick={handleConfirm}
               disabled={selectedWeapon === null}
-              className={`mt-3 w-full rounded-lg py-3 text-lg font-bold ${
+              className={`mt-3 w-full rounded-full py-3 text-lg font-bold ${
                 selectedWeapon !== null
                   ? "bg-blue-600 text-white active:bg-blue-700"
                   : "bg-zinc-700 text-zinc-500 cursor-not-allowed"
@@ -117,7 +117,7 @@ export function BattleResultView({
         {hasChosen && (
           <button
             onClick={onContinue}
-            className="w-full rounded-lg bg-blue-600 py-3 text-lg font-bold text-white active:bg-blue-700"
+            className="w-full rounded-full bg-blue-600 py-3 text-lg font-bold text-white active:bg-blue-700"
           >
             続ける
           </button>
@@ -129,12 +129,12 @@ export function BattleResultView({
   // 敗北
   return (
     <div className="flex flex-col items-center gap-4 rounded-lg border border-zinc-600 bg-zinc-800 p-6">
-      <h3 className="text-2xl font-bold text-red-500">敗北...</h3>
+      <h3 className="rounded-2xl bg-red-900/70 border border-red-500 px-8 py-3 text-2xl font-bold text-red-300 shadow-lg">敗北...</h3>
       <p className="text-zinc-400">{enemy.name} に倒された</p>
 
       <button
         onClick={onContinue}
-        className="w-full rounded-lg bg-red-700 py-3 text-lg font-bold text-white active:bg-red-800"
+        className="w-full rounded-full bg-red-700 py-3 text-lg font-bold text-white active:bg-red-800"
       >
         最初から
       </button>
