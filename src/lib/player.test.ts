@@ -46,7 +46,7 @@ describe("getRequiredExp", () => {
   });
 
   it("Lv11以降は指数要素が加わる", () => {
-    // Lv11: 10 * 121 + 2^1 = 1210 + 2 = 1212
+    // Lv11: 10 * 121 + 2^floor(1*1.5) = 1210 + 2^1 = 1212
     expect(getRequiredExp(11)).toBe(1212n);
   });
 
@@ -69,20 +69,20 @@ describe("levelUp", () => {
     expect(leveled.level).toBe(2);
   });
 
-  it("Lv1→2でMaxHP+8、ATK+3", () => {
+  it("Lv1→2でMaxHP+12、ATK+5", () => {
     const p = createInitialPlayer();
     const leveled = levelUp(p);
-    expect(leveled.maxHp).toBe(p.maxHp + 8n);
-    expect(leveled.atk).toBe(p.atk + 3n);
+    expect(leveled.maxHp).toBe(p.maxHp + 12n);
+    expect(leveled.atk).toBe(p.atk + 5n);
   });
 
   it("HPも成長量分だけ増加する", () => {
     const p = createInitialPlayer();
     const leveled = levelUp(p);
-    expect(leveled.hp).toBe(p.hp + 8n);
+    expect(leveled.hp).toBe(p.hp + 12n);
   });
 
-  it("Lv11→12でMaxHP+20、ATK+8", () => {
+  it("Lv11→12でMaxHP+60、ATK+25", () => {
     // Lv11のプレイヤーを作る
     let p = createInitialPlayer();
     for (let i = 0; i < 10; i++) {
@@ -90,30 +90,52 @@ describe("levelUp", () => {
     }
     expect(p.level).toBe(11);
     const leveled = levelUp(p);
-    expect(leveled.maxHp).toBe(p.maxHp + 20n);
-    expect(leveled.atk).toBe(p.atk + 8n);
-  });
-
-  it("Lv26→27でMaxHP+60、ATK+25", () => {
-    let p = createInitialPlayer();
-    for (let i = 0; i < 25; i++) {
-      p = levelUp(p);
-    }
-    expect(p.level).toBe(26);
-    const leveled = levelUp(p);
     expect(leveled.maxHp).toBe(p.maxHp + 60n);
     expect(leveled.atk).toBe(p.atk + 25n);
   });
 
-  it("Lv51→52でMaxHP+200、ATK+80", () => {
+  it("Lv21→22でMaxHP+350、ATK+150", () => {
+    let p = createInitialPlayer();
+    for (let i = 0; i < 20; i++) {
+      p = levelUp(p);
+    }
+    expect(p.level).toBe(21);
+    const leveled = levelUp(p);
+    expect(leveled.maxHp).toBe(p.maxHp + 350n);
+    expect(leveled.atk).toBe(p.atk + 150n);
+  });
+
+  it("Lv36→37でMaxHP+2500、ATK+1000", () => {
+    let p = createInitialPlayer();
+    for (let i = 0; i < 35; i++) {
+      p = levelUp(p);
+    }
+    expect(p.level).toBe(36);
+    const leveled = levelUp(p);
+    expect(leveled.maxHp).toBe(p.maxHp + 2500n);
+    expect(leveled.atk).toBe(p.atk + 1000n);
+  });
+
+  it("Lv51→52でMaxHP+20000、ATK+8000", () => {
     let p = createInitialPlayer();
     for (let i = 0; i < 50; i++) {
       p = levelUp(p);
     }
     expect(p.level).toBe(51);
     const leveled = levelUp(p);
-    expect(leveled.maxHp).toBe(p.maxHp + 200n);
-    expect(leveled.atk).toBe(p.atk + 80n);
+    expect(leveled.maxHp).toBe(p.maxHp + 20000n);
+    expect(leveled.atk).toBe(p.atk + 8000n);
+  });
+
+  it("Lv71→72でMaxHP+200000、ATK+80000", () => {
+    let p = createInitialPlayer();
+    for (let i = 0; i < 70; i++) {
+      p = levelUp(p);
+    }
+    expect(p.level).toBe(71);
+    const leveled = levelUp(p);
+    expect(leveled.maxHp).toBe(p.maxHp + 200000n);
+    expect(leveled.atk).toBe(p.atk + 80000n);
   });
 
   it("元のプレイヤーオブジェクトは変更されない（イミュータブル）", () => {

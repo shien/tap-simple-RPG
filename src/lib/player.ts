@@ -26,16 +26,18 @@ export function getRequiredExp(level: number): bigint {
   if (level <= 10) {
     return base;
   }
-  // 中盤以降: 指数要素追加
-  return base + (1n << BigInt(level - 10));
+  // 中盤以降: 強い指数要素追加
+  return base + (1n << BigInt(Math.floor((level - 10) * 1.5)));
 }
 
-/** レベル帯に応じた成長量を返す */
+/** レベル帯に応じた成長量を返す（桁インフレ設計） */
 function getGrowth(level: number): { hp: bigint; atk: bigint } {
-  if (level <= 10) return { hp: 8n, atk: 3n };
-  if (level <= 25) return { hp: 20n, atk: 8n };
-  if (level <= 50) return { hp: 60n, atk: 25n };
-  return { hp: 200n, atk: 80n };
+  if (level <= 10) return { hp: 12n, atk: 5n };
+  if (level <= 20) return { hp: 60n, atk: 25n };
+  if (level <= 35) return { hp: 350n, atk: 150n };
+  if (level <= 50) return { hp: 2500n, atk: 1000n };
+  if (level <= 70) return { hp: 20000n, atk: 8000n };
+  return { hp: 200000n, atk: 80000n };
 }
 
 /** 1回分のレベルアップを適用する（イミュータブル） */
