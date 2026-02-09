@@ -173,7 +173,7 @@ describe("handleBattleVictory", () => {
     expect(after.phase).toBe("exploration");
   });
 
-  it("エリア8ボス撃破でリスタート（クリア）", () => {
+  it("エリア8ボス撃破でクリア画面に遷移", () => {
     const state = makeState({
       currentStep: STEPS_PER_AREA,
       currentArea: 8,
@@ -181,11 +181,8 @@ describe("handleBattleVictory", () => {
     });
     const after = handleBattleVictory(state);
 
-    // createNewGame() と同等
-    expect(after.currentArea).toBe(1);
-    expect(after.currentStep).toBe(1);
-    expect(after.player.level).toBe(1);
-    expect(after.phase).toBe("exploration");
+    expect(after.phase).toBe("gameClear");
+    expect(after.currentArea).toBe(8);
   });
 });
 
@@ -207,14 +204,13 @@ describe("handleBossClear", () => {
     expect(after.healCount).toBe(4);
   });
 
-  it("エリア8→リスタート（healCount も 3 にリセット）", () => {
+  it("エリア8→クリア画面に遷移（状態は維持）", () => {
     const state = makeState({ currentStep: STEPS_PER_AREA, currentArea: 8, healCount: 5 });
     const after = handleBossClear(state);
 
-    expect(after.currentArea).toBe(1);
-    expect(after.currentStep).toBe(1);
-    expect(after.player.level).toBe(1);
-    expect(after.healCount).toBe(3);
+    expect(after.phase).toBe("gameClear");
+    expect(after.currentArea).toBe(8);
+    expect(after.healCount).toBe(5);
   });
 });
 
