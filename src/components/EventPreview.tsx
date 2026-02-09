@@ -6,7 +6,6 @@ const EVENT_CONFIG: Record<
   { label: string; color: string }
 > = {
   battle: { label: "戦闘", color: "bg-red-900/60 text-red-300" },
-  rest: { label: "休息", color: "bg-green-900/60 text-green-300" },
   treasure: { label: "宝箱", color: "bg-yellow-900/60 text-yellow-300" },
   boss: { label: "BOSS", color: "bg-red-800 text-red-200 font-bold" },
 };

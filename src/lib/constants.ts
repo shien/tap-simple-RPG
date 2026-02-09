@@ -124,18 +124,22 @@ export const AREAS: readonly AreaConfig[] = [
   },
 ] as const;
 
+// === 回復システム ===
+export const INITIAL_HEAL_COUNT = 3;
+export const BATTLE_PREP_HEAL_RATIO = 0.7;
+
 // === イベント確率テーブル（エリアごと） ===
-// battle / rest / treasure の出現割合（6マス目のbossは別処理）
+// battle / treasure の出現割合（6マス目のbossは別処理）
 export const EVENT_PROBABILITY_TABLE: Record<
   number,
-  { battle: number; rest: number; treasure: number }
+  { battle: number; treasure: number }
 > = {
-  1: { battle: 0.55, rest: 0.25, treasure: 0.2 },
-  2: { battle: 0.55, rest: 0.25, treasure: 0.2 },
-  3: { battle: 0.6, rest: 0.2, treasure: 0.2 },
-  4: { battle: 0.6, rest: 0.2, treasure: 0.2 },
-  5: { battle: 0.65, rest: 0.2, treasure: 0.15 },
-  6: { battle: 0.65, rest: 0.2, treasure: 0.15 },
-  7: { battle: 0.7, rest: 0.15, treasure: 0.15 },
-  8: { battle: 0.7, rest: 0.15, treasure: 0.15 },
+  1: { battle: 0.80, treasure: 0.20 },
+  2: { battle: 0.80, treasure: 0.20 },
+  3: { battle: 0.80, treasure: 0.20 },
+  4: { battle: 0.80, treasure: 0.20 },
+  5: { battle: 0.85, treasure: 0.15 },
+  6: { battle: 0.85, treasure: 0.15 },
+  7: { battle: 0.85, treasure: 0.15 },
+  8: { battle: 0.85, treasure: 0.15 },
 };

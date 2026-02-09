@@ -36,7 +36,7 @@ export type Enemy = {
 };
 
 // === イベント種別 ===
-export type EventType = "battle" | "rest" | "treasure" | "boss";
+export type EventType = "battle" | "treasure" | "boss";
 
 // === エリアID ===
 export type AreaId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -99,5 +99,6 @@ export type GameState = {
   currentStep: number; // 1〜6
   areaEvents: UpcomingEvent[]; // エリア内のstep1〜5の事前生成イベント列
   upcomingEvents: UpcomingEvent[];
-  phase: "exploration" | "battle" | "event" | "gameover";
+  phase: "exploration" | "battlePrep" | "battle" | "event" | "gameover";
+  healCount: number; // 回復残回数（初期3、ボス撃破で+1）
 };

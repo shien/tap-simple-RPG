@@ -153,7 +153,7 @@ describe("EVENT_PROBABILITY_TABLE", () => {
   it("各エリアの確率合計が1になる", () => {
     for (let i = 1; i <= 8; i++) {
       const t = EVENT_PROBABILITY_TABLE[i];
-      expect(t.battle + t.rest + t.treasure).toBeCloseTo(1, 5);
+      expect(t.battle + t.treasure).toBeCloseTo(1, 5);
     }
   });
 });
