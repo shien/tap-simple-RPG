@@ -72,12 +72,12 @@ describe("AREAS", () => {
     expect(AREAS[7].individualVariation.max).toBe(2.6);
   });
 
-  it("草原の異常個体出現率が0.5%", () => {
-    expect(AREAS[0].abnormalRate).toBeCloseTo(0.005, 6);
+  it("草原の異常個体出現率が10%", () => {
+    expect(AREAS[0].abnormalRate).toBeCloseTo(0.10, 6);
   });
 
-  it("魔王城の異常個体出現率が18%", () => {
-    expect(AREAS[7].abnormalRate).toBeCloseTo(0.18, 6);
+  it("魔王城の異常個体出現率が45%", () => {
+    expect(AREAS[7].abnormalRate).toBeCloseTo(0.45, 6);
   });
 });
 
