@@ -1,5 +1,5 @@
 import type { GameState, Weapon } from "./types";
-import { AREAS, INITIAL_HEAL_COUNT, BATTLE_PREP_HEAL_RATIO } from "./constants";
+import { AREAS, INITIAL_HEAL_COUNT, BATTLE_PREP_HEAL_RATIO, STEPS_PER_AREA } from "./constants";
 import { createInitialPlayer, heal } from "./player";
 import { advanceArea } from "./map";
 import { getCurrentEvent } from "./map";
@@ -80,7 +80,7 @@ export function processTreasureWeapon(state: GameState, weapon: Weapon): GameSta
 
 /** 戦闘勝利後の処理 */
 export function handleBattleVictory(state: GameState): GameState {
-  if (state.currentStep === 6) {
+  if (state.currentStep === STEPS_PER_AREA) {
     return handleBossClear(state);
   }
   return { ...state, phase: "exploration" };
@@ -105,5 +105,5 @@ export function handleDeath(): GameState {
 
 /** 魔王城ボス撃破判定 */
 export function isGameClear(state: GameState): boolean {
-  return state.currentArea === 8 && state.currentStep === 6;
+  return state.currentArea === 8 && state.currentStep === STEPS_PER_AREA;
 }

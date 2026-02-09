@@ -133,12 +133,15 @@ export const AREAS: readonly AreaConfig[] = [
   },
 ] as const;
 
+// === エリア内マス数 ===
+export const STEPS_PER_AREA = 8;
+
 // === 回復システム ===
 export const INITIAL_HEAL_COUNT = 3;
 export const BATTLE_PREP_HEAL_RATIO = 0.7;
 
 // === イベント確率テーブル（エリアごと） ===
-// battle / treasure の出現割合（6マス目のbossは別処理）
+// battle / treasure の出現割合（最終マスのbossは別処理）
 export const EVENT_PROBABILITY_TABLE: Record<
   number,
   { battle: number; treasure: number }

@@ -35,7 +35,7 @@
 
 #### handleBattleVictory(state: GameState): GameState
 戦闘勝利後の処理。
-- 現在マスが boss（step=6）なら handleBossClear を呼ぶ
+- 現在マスが boss（step=8）なら handleBossClear を呼ぶ
 - 通常戦闘なら phase を "exploration" に戻す
 
 #### handleBossClear(state: GameState): GameState
@@ -49,7 +49,7 @@
 
 #### isGameClear(state: GameState): boolean
 魔王城（エリア8）のボス撃破判定。
-- currentArea === 8 かつ currentStep === 6
+- currentArea === 8 かつ currentStep === 8（STEPS_PER_AREA）
 
 ## 定数
 - REST_HEAL_RATIO = 0.3 （回復量 = maxHP × 30%）
@@ -69,10 +69,10 @@
 - processEvent(trap): HP が減少する（maxHPの20%）
 - processEvent(trap): HPが0になったら phase = "gameover"
 - handleBattleVictory: 通常戦闘後 phase = "exploration"
-- handleBattleVictory: ボス（step=6）後に次エリアへ遷移
+- handleBattleVictory: ボス（step=8）後に次エリアへ遷移
 - handleBattleVictory: エリア8ボス撃破でリスタート（クリア）
 - handleDeath: 全進行リセット（Lv1, area=1, step=1）
-- isGameClear: エリア8 step=6 で true
+- isGameClear: エリア8 step=8 で true
 - isGameClear: エリア8 以外で false
 - イミュータブル: 元の state が変更されない
 
