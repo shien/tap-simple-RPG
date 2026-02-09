@@ -37,28 +37,23 @@ describe("getRequiredExp", () => {
     expect(getRequiredExp(1)).toBe(10n);
   });
 
-  it("Lv5 → 250n", () => {
-    expect(getRequiredExp(5)).toBe(250n);
+  it("Lv5 → 50n", () => {
+    expect(getRequiredExp(5)).toBe(50n);
   });
 
-  it("Lv10 → 1000n", () => {
-    expect(getRequiredExp(10)).toBe(1000n);
+  it("Lv10 → 100n", () => {
+    expect(getRequiredExp(10)).toBe(100n);
   });
 
-  it("Lv11以降は指数要素が加わる", () => {
-    // Lv11: 10 * 121 + 2^floor(1*1.5) = 1210 + 2^1 = 1212
-    expect(getRequiredExp(11)).toBe(1212n);
-  });
-
-  it("後半は指数的に増加する（Lv20 >> Lv10の数倍以上）", () => {
+  it("線形に増加する（レベル差に比例）", () => {
     const exp10 = getRequiredExp(10);
     const exp20 = getRequiredExp(20);
-    expect(exp20).toBeGreaterThan(exp10 * 5n);
+    // 20 / 10 = 2倍
+    expect(exp20).toBe(exp10 * 2n);
   });
 
-  it("Lv50は極めて大きい値になる", () => {
-    const exp50 = getRequiredExp(50);
-    expect(exp50).toBeGreaterThan(1_000_000n);
+  it("Lv50 → 500n", () => {
+    expect(getRequiredExp(50)).toBe(500n);
   });
 });
 
@@ -163,8 +158,8 @@ describe("addExp", () => {
 
   it("大量EXPで複数回レベルアップ", () => {
     const p = createInitialPlayer();
-    // Lv1→2: 10n, Lv2→3: 40n, Lv3→4: 90n → 合計 140n で Lv4
-    const result = addExp(p, 140n);
+    // Lv1→2: 10n, Lv2→3: 20n, Lv3→4: 30n → 30n で Lv4
+    const result = addExp(p, 30n);
     expect(result.level).toBe(4);
   });
 

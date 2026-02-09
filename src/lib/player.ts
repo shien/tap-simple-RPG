@@ -20,14 +20,9 @@ export function createInitialPlayer(): Player {
   };
 }
 
-/** 次のレベルに必要な累計EXPを返す */
+/** 次のレベルに必要な累計EXPを返す（線形増加） */
 export function getRequiredExp(level: number): bigint {
-  const base = 10n * BigInt(level) * BigInt(level);
-  if (level <= 10) {
-    return base;
-  }
-  // 中盤以降: 強い指数要素追加
-  return base + (1n << BigInt(Math.floor((level - 10) * 1.5)));
+  return 10n * BigInt(level);
 }
 
 /** レベル帯に応じた成長量を返す（桁インフレ設計） */
