@@ -8,6 +8,8 @@ import {
   isGameClear,
   healInPrep,
   startBattle,
+  processTreasureHeal,
+  processTreasureWeapon,
 } from "./game";
 import * as mapModule from "./map";
 import type { GameState } from "./types";
@@ -111,24 +113,24 @@ describe("processEvent", () => {
   });
 
   describe("treasure", () => {
-    it("EXP と Gold が増加する", () => {
+    it("treasure イベントで phase が 'treasureSelect' になる", () => {
       const state = makeState();
       getCurrentEventMock.mockReturnValueOnce("treasure");
 
       const after = processEvent(state);
 
-      expect(after.player.exp).toBeGreaterThan(state.player.exp);
-      expect(after.player.gold).toBeGreaterThan(state.player.gold);
+      expect(after.phase).toBe("treasureSelect");
     });
 
-    it("エリア1で EXP=5, Gold=10 加算される", () => {
+    it("treasure イベントで player のステータスが変化しない", () => {
       const state = makeState();
       getCurrentEventMock.mockReturnValueOnce("treasure");
 
       const after = processEvent(state);
 
-      expect(after.player.exp).toBe(5n);
-      expect(after.player.gold).toBe(10n);
+      expect(after.player.hp).toBe(state.player.hp);
+      expect(after.player.gold).toBe(state.player.gold);
+      expect(after.player.exp).toBe(state.player.exp);
     });
   });
 
@@ -305,6 +307,75 @@ describe("startBattle", () => {
     const state = makeState({ phase: "exploration" });
 
     const after = startBattle(state);
+
+    expect(after.phase).toBe("exploration");
+  });
+});
+
+describe("processTreasureHeal", () => {
+  it("HP が maxHP の 70% 回復する", () => {
+    const state = makeState({ phase: "treasureSelect" });
+    state.player = { ...state.player, hp: 20n, maxHp: 100n };
+
+    const after = processTreasureHeal({ ...state, player: { ...state.player } });
+
+    expect(after.player.hp).toBe(90n);
+    expect(after.phase).toBe("exploration");
+  });
+
+  it("HP が maxHP を超えない", () => {
+    const state = makeState({ phase: "treasureSelect" });
+    state.player = { ...state.player, hp: 45n, maxHp: 50n };
+
+    const after = processTreasureHeal({ ...state, player: { ...state.player } });
+
+    expect(after.player.hp).toBe(50n);
+  });
+
+  it("treasureSelect 以外では変化しない", () => {
+    const state = makeState({ phase: "exploration" });
+    state.player = { ...state.player, hp: 20n, maxHp: 100n };
+
+    const after = processTreasureHeal({ ...state, player: { ...state.player } });
+
+    expect(after.player.hp).toBe(20n);
+    expect(after.phase).toBe("exploration");
+  });
+
+  it("回復後に phase が exploration に戻る", () => {
+    const state = makeState({ phase: "treasureSelect" });
+
+    const after = processTreasureHeal(state);
+
+    expect(after.phase).toBe("exploration");
+  });
+});
+
+describe("processTreasureWeapon", () => {
+  const testWeapon = { name: "テスト剣", element: "water" as const, attackBonus: 50n };
+
+  it("武器が装備される", () => {
+    const state = makeState({ phase: "treasureSelect" });
+
+    const after = processTreasureWeapon(state, testWeapon);
+
+    expect(after.player.weapon).toEqual(testWeapon);
+    expect(after.phase).toBe("exploration");
+  });
+
+  it("treasureSelect 以外では変化しない", () => {
+    const state = makeState({ phase: "exploration" });
+    const originalWeapon = state.player.weapon;
+
+    const after = processTreasureWeapon(state, testWeapon);
+
+    expect(after.player.weapon).toEqual(originalWeapon);
+  });
+
+  it("武器選択後に phase が exploration に戻る", () => {
+    const state = makeState({ phase: "treasureSelect" });
+
+    const after = processTreasureWeapon(state, testWeapon);
 
     expect(after.phase).toBe("exploration");
   });

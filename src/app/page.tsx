@@ -4,10 +4,11 @@ import { useGameState } from "@/hooks/useGameState";
 import { ExplorationView } from "@/components/ExplorationView";
 import { BattlePrepView } from "@/components/BattlePrepView";
 import { BattleView } from "@/components/BattleView";
+import { TreasureSelectView } from "@/components/TreasureSelectView";
 import { GameOverView } from "@/components/GameOverView";
 
 export default function Home() {
-  const { gameState, battleState, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle } =
+  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon } =
     useGameState();
 
   return (
@@ -25,6 +26,15 @@ export default function Home() {
             gameState={gameState}
             onHeal={heal}
             onStartBattle={confirmBattle}
+          />
+        )}
+
+        {gameState.phase === "treasureSelect" && treasureWeapon && (
+          <TreasureSelectView
+            gameState={gameState}
+            treasureWeapon={treasureWeapon}
+            onChooseHeal={chooseTreasureHeal}
+            onChooseWeapon={chooseTreasureWeapon}
           />
         )}
 
