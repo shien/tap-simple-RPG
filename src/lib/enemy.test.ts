@@ -185,7 +185,7 @@ describe("generateEnemy", () => {
 describe("generateBoss", () => {
   it("エリア1のボス名がモンスター設定から取得される", () => {
     const boss = generateBoss(1);
-    expect(boss.name).toBe("草原の王");
+    expect(boss.name).toBe("グレイズビースト");
   });
 
   it("ボスのisAbnormal=false", () => {
@@ -215,9 +215,9 @@ describe("generateBoss", () => {
     expect(boss.expReward).toBeGreaterThan(avgNormalExp);
   });
 
-  it("設定にないエリアではフォールバック名が使われる", () => {
+  it("エリア8のボス名がモンスター設定から取得される", () => {
     const boss = generateBoss(8);
-    expect(boss.name).toBe("魔王城のボス");
+    expect(boss.name).toBe("アルファ");
   });
 
   it("hp と maxHp が一致する", () => {

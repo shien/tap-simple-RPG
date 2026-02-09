@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { MONSTERS, getMonstersForArea, getBossForArea } from "./monsters";
 
 describe("MONSTERS", () => {
-  it("5件以上のモンスターが定義されている", () => {
-    expect(MONSTERS.length).toBeGreaterThanOrEqual(5);
+  it("30件のモンスターが定義されている", () => {
+    expect(MONSTERS.length).toBe(30);
   });
 
   it("全モンスターに必須フィールドが存在する", () => {
@@ -31,9 +31,27 @@ describe("MONSTERS", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("ボスモンスターが少なくとも1体いる", () => {
-    const bosses = MONSTERS.filter((m) => m.isBoss);
-    expect(bosses.length).toBeGreaterThanOrEqual(1);
+  it("nameが重複しない", () => {
+    const names = MONSTERS.map((m) => m.name);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("全8エリアにボスが1体ずつ存在する", () => {
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const bosses = MONSTERS.filter(
+        (m) => m.isBoss && m.areaIds.includes(areaId as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
+      );
+      expect(bosses.length).toBe(1);
+    }
+  });
+
+  it("全8エリアに通常モンスターが2体以上存在する", () => {
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const normals = MONSTERS.filter(
+        (m) => !m.isBoss && m.areaIds.includes(areaId as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
+      );
+      expect(normals.length).toBeGreaterThanOrEqual(2);
+    }
   });
 });
 
@@ -48,21 +66,30 @@ describe("getMonstersForArea", () => {
   });
 
   it("ボスは含まれない", () => {
-    const monsters = getMonstersForArea(1);
-    expect(monsters.every((m) => !m.isBoss)).toBe(true);
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const monsters = getMonstersForArea(areaId);
+      expect(monsters.every((m) => !m.isBoss)).toBe(true);
+    }
+  });
+
+  it("存在しないエリアでは空配列", () => {
+    const monsters = getMonstersForArea(99);
+    expect(monsters).toEqual([]);
   });
 });
 
 describe("getBossForArea", () => {
-  it("エリア1のボスが取得できる", () => {
-    const boss = getBossForArea(1);
-    expect(boss).toBeDefined();
-    expect(boss!.isBoss).toBe(true);
-    expect(boss!.areaIds).toContain(1);
+  it("全8エリアのボスが取得できる", () => {
+    for (let areaId = 1; areaId <= 8; areaId++) {
+      const boss = getBossForArea(areaId);
+      expect(boss).toBeDefined();
+      expect(boss!.isBoss).toBe(true);
+      expect(boss!.areaIds).toContain(areaId);
+    }
   });
 
-  it("ボスがいないエリアではundefined", () => {
-    const boss = getBossForArea(8);
+  it("存在しないエリアではundefined", () => {
+    const boss = getBossForArea(99);
     expect(boss).toBeUndefined();
   });
 });
