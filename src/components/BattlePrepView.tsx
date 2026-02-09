@@ -50,9 +50,6 @@ export function BattlePrepView({
             </span>
           )}
         </div>
-        {enemy.isAbnormal && (
-          <p className="mb-2 text-sm text-red-400">撃破時 EXP x100</p>
-        )}
         <HpBar current={enemy.hp} max={enemy.maxHp} label="敵HP" colorClass="bg-red-500" />
       </div>
 
