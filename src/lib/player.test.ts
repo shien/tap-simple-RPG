@@ -33,27 +33,34 @@ describe("createInitialPlayer", () => {
 });
 
 describe("getRequiredExp", () => {
-  it("Lv1 → 10n", () => {
+  it("Lv1 → 10n（10*1²）", () => {
     expect(getRequiredExp(1)).toBe(10n);
   });
 
-  it("Lv5 → 50n", () => {
-    expect(getRequiredExp(5)).toBe(50n);
+  it("Lv5 → 250n（10*5²）", () => {
+    expect(getRequiredExp(5)).toBe(250n);
   });
 
-  it("Lv10 → 100n", () => {
-    expect(getRequiredExp(10)).toBe(100n);
+  it("Lv10 → 1000n（10*10²）", () => {
+    expect(getRequiredExp(10)).toBe(1000n);
   });
 
-  it("線形に増加する（レベル差に比例）", () => {
-    const exp10 = getRequiredExp(10);
-    const exp20 = getRequiredExp(20);
-    // 20 / 10 = 2倍
-    expect(exp20).toBe(exp10 * 2n);
+  it("Lv11以降は指数要素が加わる（10*11² + 2¹ = 1212n）", () => {
+    expect(getRequiredExp(11)).toBe(1212n);
   });
 
-  it("Lv50 → 500n", () => {
-    expect(getRequiredExp(50)).toBe(500n);
+  it("高レベルでは指数部分が支配的になる", () => {
+    const exp20 = getRequiredExp(20); // 10*400 + 2^10 = 5024
+    expect(exp20).toBe(5024n);
+    // Lv20 vs Lv10 は5倍以上（線形なら4倍）
+    expect(exp20).toBeGreaterThan(getRequiredExp(10) * 4n);
+  });
+
+  it("Lv50では指数部分が圧倒的に大きい", () => {
+    const exp50 = getRequiredExp(50); // 10*2500 + 2^40
+    expect(exp50).toBe(25000n + (1n << 40n));
+    // 指数部分 >> 二次部分
+    expect(exp50).toBeGreaterThan(1000000000n);
   });
 });
 
@@ -158,8 +165,8 @@ describe("addExp", () => {
 
   it("大量EXPで複数回レベルアップ", () => {
     const p = createInitialPlayer();
-    // Lv1→2: 10n, Lv2→3: 20n, Lv3→4: 30n → 30n で Lv4
-    const result = addExp(p, 30n);
+    // Lv1→2: 10n, Lv2→3: 40n, Lv3→4: 90n → 90n で Lv4
+    const result = addExp(p, 90n);
     expect(result.level).toBe(4);
   });
 
