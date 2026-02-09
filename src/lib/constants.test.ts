@@ -4,6 +4,7 @@ import {
   ELEMENT_ADVANTAGE_MAP,
   DAMAGE_MULTIPLIER,
   ABNORMAL_TIERS,
+  ABNORMAL_HP_MULTIPLIERS,
   ABNORMAL_EXP_MULTIPLIER,
   EVENT_PROBABILITY_TABLE,
 } from "./constants";
@@ -134,6 +135,29 @@ describe("ABNORMAL_TIERS", () => {
 
   it("Tier値が正しい", () => {
     expect([...ABNORMAL_TIERS]).toEqual([8, 20, 60, 150]);
+  });
+});
+
+describe("ABNORMAL_HP_MULTIPLIERS", () => {
+  it("全Tierに対応するHP倍率が定義されている", () => {
+    for (const tier of ABNORMAL_TIERS) {
+      expect(ABNORMAL_HP_MULTIPLIERS[tier]).toBeDefined();
+    }
+  });
+
+  it("HP倍率が1より大きく3以下（通常より少し高い程度）", () => {
+    for (const tier of ABNORMAL_TIERS) {
+      expect(ABNORMAL_HP_MULTIPLIERS[tier]).toBeGreaterThan(1);
+      expect(ABNORMAL_HP_MULTIPLIERS[tier]).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("Tierが高いほどHP倍率も高い", () => {
+    for (let i = 1; i < ABNORMAL_TIERS.length; i++) {
+      expect(ABNORMAL_HP_MULTIPLIERS[ABNORMAL_TIERS[i]]).toBeGreaterThan(
+        ABNORMAL_HP_MULTIPLIERS[ABNORMAL_TIERS[i - 1]]
+      );
+    }
   });
 });
 

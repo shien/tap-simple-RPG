@@ -129,7 +129,7 @@ describe("generateEnemy", () => {
     }
   });
 
-  it("異常個体はHPが高いがATKは通常と同等（統計的）", () => {
+  it("異常個体はHPが少し高いがATKは通常と同等（統計的）", () => {
     // abnormalRate=1で全て異常個体にする
     const area = { ...AREAS[0], abnormalRate: 1 };
     const normalArea = { ...AREAS[0], abnormalRate: 0 };
@@ -161,7 +161,7 @@ describe("generateEnemy", () => {
 
     // 異常個体がいた場合のみ検証
     if (abnormalHpSum > 0n && normalHpSum > 0n) {
-      // HPは異常個体の方が大幅に高い
+      // HPは異常個体の方が少し高い
       expect(abnormalHpSum).toBeGreaterThan(normalHpSum);
     }
   });

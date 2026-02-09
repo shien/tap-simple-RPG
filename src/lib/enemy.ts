@@ -1,5 +1,5 @@
 import type { AreaConfig, AreaId, Element, Enemy } from "./types";
-import { AREAS, ABNORMAL_TIERS } from "./constants";
+import { AREAS, ABNORMAL_TIERS, ABNORMAL_HP_MULTIPLIERS } from "./constants";
 import { getMonstersForArea, getBossForArea } from "./data/monsters";
 
 const BASE_HP = 30n;
@@ -84,7 +84,7 @@ export function generateEnemy(areaId: AreaId, presetElement?: Element): Enemy {
 
   const variation = rollIndividualVariation(area);
   const { isAbnormal, tier } = rollAbnormal(area);
-  const abnormalMul = isAbnormal && tier ? tier : 1;
+  const abnormalMul = isAbnormal && tier ? (ABNORMAL_HP_MULTIPLIERS[tier] ?? 1) : 1;
 
   const hp = applyMultiplier(
     BASE_HP,

@@ -21,6 +21,14 @@ export const DAMAGE_MULTIPLIER: Record<ElementAdvantage, number> = {
 // === 異常個体 倍率Tier ===
 export const ABNORMAL_TIERS = [8, 20, 60, 150] as const;
 
+// === 異常個体 HP倍率（通常個体より少し高い程度） ===
+export const ABNORMAL_HP_MULTIPLIERS: Record<number, number> = {
+  8: 1.2,
+  20: 1.5,
+  60: 1.8,
+  150: 2.0,
+};
+
 // === 異常個体 撃破時EXP倍率 ===
 export const ABNORMAL_EXP_MULTIPLIER = 100;
 
