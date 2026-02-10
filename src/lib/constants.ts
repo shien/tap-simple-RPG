@@ -44,7 +44,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 6,
     elementDistribution: { water: 0.33, earth: 0.33, thunder: 0.34 },
     abnormalRate: 0.055,
-    bossMultiplier: 4,
+    bossMultiplier: 2,
     individualVariation: { min: 0.85, max: 1.15 },
   },
   {
@@ -56,7 +56,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 20,
     elementDistribution: { water: 0.3, earth: 0.3, thunder: 0.4 },
     abnormalRate: 0.06,
-    bossMultiplier: 6,
+    bossMultiplier: 3,
     individualVariation: { min: 0.8, max: 1.3 },
   },
   {
@@ -68,7 +68,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 120,
     elementDistribution: { water: 0.2, earth: 0.2, thunder: 0.6 },
     abnormalRate: 0.07,
-    bossMultiplier: 9,
+    bossMultiplier: 4.5,
     individualVariation: { min: 0.75, max: 1.5 },
   },
   {
@@ -80,7 +80,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 800,
     elementDistribution: { water: 0.2, earth: 0.5, thunder: 0.3 },
     abnormalRate: 0.09,
-    bossMultiplier: 16,
+    bossMultiplier: 8,
     individualVariation: { min: 0.7, max: 1.7 },
   },
   {
@@ -92,7 +92,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 8000,
     elementDistribution: { water: 0.15, earth: 0.55, thunder: 0.3 },
     abnormalRate: 0.12,
-    bossMultiplier: 25,
+    bossMultiplier: 12.5,
     individualVariation: { min: 0.65, max: 1.9 },
   },
   {
@@ -104,7 +104,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 100000,
     elementDistribution: { water: 0.6, earth: 0.15, thunder: 0.25 },
     abnormalRate: 0.15,
-    bossMultiplier: 36,
+    bossMultiplier: 18,
     individualVariation: { min: 0.6, max: 2.1 },
   },
   {
@@ -116,7 +116,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 1500000,
     elementDistribution: { water: 0.35, earth: 0.35, thunder: 0.3 },
     abnormalRate: 0.19,
-    bossMultiplier: 64,
+    bossMultiplier: 32,
     individualVariation: { min: 0.55, max: 2.3 },
   },
   {
@@ -128,7 +128,7 @@ export const AREAS: readonly AreaConfig[] = [
     rewardMultiplier: 40000000,
     elementDistribution: { water: 0.33, earth: 0.33, thunder: 0.34 },
     abnormalRate: 0.23,
-    bossMultiplier: 144,
+    bossMultiplier: 72,
     individualVariation: { min: 0.5, max: 2.6 },
   },
 ] as const;
