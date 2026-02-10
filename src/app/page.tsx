@@ -8,11 +8,12 @@ import { BattleView } from "@/components/BattleView";
 import { TreasureSelectView } from "@/components/TreasureSelectView";
 import { GameOverView } from "@/components/GameOverView";
 import { GameClearView } from "@/components/GameClearView";
+import { AreaMoveView } from "@/components/AreaMoveView";
 import { StartScreen } from "@/components/StartScreen";
 
 export default function Home() {
   const [started, setStarted] = useState(false);
-  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, chooseTreasureHeal, chooseTreasureWeapon, guard } =
+  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, confirmAreaMove, chooseTreasureHeal, chooseTreasureWeapon, guard } =
     useGameState();
 
   if (!started) {
@@ -61,6 +62,13 @@ export default function Home() {
             onGuard={guard}
             onChooseWeapon={chooseWeapon}
             onEndBattle={endBattle}
+          />
+        )}
+
+        {gameState.phase === "areaMove" && (
+          <AreaMoveView
+            areaId={gameState.currentArea}
+            onConfirm={confirmAreaMove}
           />
         )}
 

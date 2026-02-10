@@ -10,6 +10,7 @@ import {
   startBattle,
   processTreasureHeal,
   processTreasureWeapon,
+  confirmAreaMove,
 } from "./game";
 import * as mapModule from "./map";
 import type { GameState } from "./types";
@@ -147,7 +148,7 @@ describe("handleBattleVictory", () => {
     expect(after.currentArea).toBe(1);
   });
 
-  it(`ボス（step=${STEPS_PER_AREA}）後に次エリアへ遷移`, () => {
+  it(`ボス（step=${STEPS_PER_AREA}）後に次エリアへ遷移（areaMove画面）`, () => {
     const state = makeState({
       currentStep: STEPS_PER_AREA,
       currentArea: 1,
@@ -157,10 +158,10 @@ describe("handleBattleVictory", () => {
 
     expect(after.currentArea).toBe(2);
     expect(after.currentStep).toBe(1);
-    expect(after.phase).toBe("exploration");
+    expect(after.phase).toBe("areaMove");
   });
 
-  it("エリア7ボス撃破でエリア8へ", () => {
+  it("エリア7ボス撃破でエリア8へ（areaMove画面）", () => {
     const state = makeState({
       currentStep: STEPS_PER_AREA,
       currentArea: 7,
@@ -170,7 +171,7 @@ describe("handleBattleVictory", () => {
 
     expect(after.currentArea).toBe(8);
     expect(after.currentStep).toBe(1);
-    expect(after.phase).toBe("exploration");
+    expect(after.phase).toBe("areaMove");
   });
 
   it("エリア8ボス撃破でクリア画面に遷移", () => {
@@ -187,13 +188,13 @@ describe("handleBattleVictory", () => {
 });
 
 describe("handleBossClear", () => {
-  it("エリア1→2 へ遷移", () => {
+  it("エリア1→2 へ遷移（areaMove画面）", () => {
     const state = makeState({ currentStep: STEPS_PER_AREA, currentArea: 1, healCount: 3 });
     const after = handleBossClear(state);
 
     expect(after.currentArea).toBe(2);
     expect(after.currentStep).toBe(1);
-    expect(after.phase).toBe("exploration");
+    expect(after.phase).toBe("areaMove");
     expect(after.upcomingEvents.length).toBeGreaterThan(0);
   });
 
@@ -211,6 +212,27 @@ describe("handleBossClear", () => {
     expect(after.phase).toBe("gameClear");
     expect(after.currentArea).toBe(8);
     expect(after.healCount).toBe(5);
+  });
+});
+
+describe("confirmAreaMove", () => {
+  it("areaMove → exploration に遷移する", () => {
+    const state = makeState({ phase: "areaMove", currentArea: 2, currentStep: 1 });
+
+    const after = confirmAreaMove(state);
+
+    expect(after.phase).toBe("exploration");
+    expect(after.currentArea).toBe(2);
+    expect(after.currentStep).toBe(1);
+  });
+
+  it("areaMove 以外では変化しない", () => {
+    const state = makeState({ phase: "exploration" });
+
+    const after = confirmAreaMove(state);
+
+    expect(after.phase).toBe("exploration");
+    expect(after).toBe(state);
   });
 });
 

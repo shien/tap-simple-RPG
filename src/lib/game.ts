@@ -93,9 +93,15 @@ export function handleBossClear(state: GameState): GameState {
   }
   return {
     ...advanceArea(state),
-    phase: "exploration",
+    phase: "areaMove",
     healCount: state.healCount + 1,
   };
+}
+
+/** エリア移動画面から探索へ遷移 */
+export function confirmAreaMove(state: GameState): GameState {
+  if (state.phase !== "areaMove") return state;
+  return { ...state, phase: "exploration" };
 }
 
 /** 死亡時のリスタート処理 */
