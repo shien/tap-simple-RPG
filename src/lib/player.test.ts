@@ -45,22 +45,16 @@ describe("getRequiredExp", () => {
     expect(getRequiredExp(10)).toBe(1000n);
   });
 
-  it("Lv11以降は指数要素が加わる（10*11² + 2¹ = 1212n）", () => {
-    expect(getRequiredExp(11)).toBe(1212n);
+  it("Lv11 → 1210n（10*11²）", () => {
+    expect(getRequiredExp(11)).toBe(1210n);
   });
 
-  it("高レベルでは指数部分が支配的になる", () => {
-    const exp20 = getRequiredExp(20); // 10*400 + 2^10 = 5024
-    expect(exp20).toBe(5024n);
-    // Lv20 vs Lv10 は5倍以上（線形なら4倍）
-    expect(exp20).toBeGreaterThan(getRequiredExp(10) * 4n);
+  it("Lv20 → 4000n（10*20²）", () => {
+    expect(getRequiredExp(20)).toBe(4000n);
   });
 
-  it("Lv50では指数部分が圧倒的に大きい", () => {
-    const exp50 = getRequiredExp(50); // 10*2500 + 2^40
-    expect(exp50).toBe(25000n + (1n << 40n));
-    // 指数部分 >> 二次部分
-    expect(exp50).toBeGreaterThan(1000000000n);
+  it("Lv50 → 25000n（10*50²）", () => {
+    expect(getRequiredExp(50)).toBe(25000n);
   });
 });
 
