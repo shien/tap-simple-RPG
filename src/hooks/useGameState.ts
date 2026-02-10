@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { GameState, BattleState, Weapon } from "@/lib/types";
-import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle, processTreasureHeal, processTreasureWeapon } from "@/lib/game";
+import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle, processTreasureHeal, processTreasureWeapon, confirmAreaMove as confirmAreaMoveFn } from "@/lib/game";
 import { generateWeaponDrop } from "@/lib/weapon";
 import { advanceStep } from "@/lib/map";
 import { STEPS_PER_AREA } from "@/lib/constants";
@@ -203,6 +203,17 @@ export function useGameState() {
     });
   }, []);
 
+  /** エリア移動画面から探索へ */
+  const confirmAreaMove = useCallback(() => {
+    setState((prev) => {
+      if (prev.gameState.phase !== "areaMove") return prev;
+      return {
+        ...prev,
+        gameState: confirmAreaMoveFn(prev.gameState),
+      };
+    });
+  }, []);
+
   /** リスタート */
   const restart = useCallback(() => {
     setState({
@@ -227,6 +238,7 @@ export function useGameState() {
     restart,
     heal,
     confirmBattle,
+    confirmAreaMove,
     chooseTreasureHeal,
     chooseTreasureWeapon,
   };
