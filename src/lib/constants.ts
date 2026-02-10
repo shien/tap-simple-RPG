@@ -41,7 +41,7 @@ export const AREAS: readonly AreaConfig[] = [
     enemyLevelOffset: 0,
     enemyHpMultiplier: 1,
     enemyAtkMultiplier: 1,
-    rewardMultiplier: 4,
+    rewardMultiplier: 6,
     elementDistribution: { water: 0.33, earth: 0.33, thunder: 0.34 },
     abnormalRate: 0.055,
     bossMultiplier: 4,
