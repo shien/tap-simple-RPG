@@ -4,7 +4,7 @@ import { getMonstersForArea, getBossForArea } from "./data/monsters";
 
 const BASE_HP = 30n;
 const BASE_ATK = 5n;
-const BASE_EXP = 8n;
+const BASE_EXP = 2n;
 const BASE_GOLD = 3n;
 
 const ELEMENTS: Element[] = ["water", "earth", "thunder"];
