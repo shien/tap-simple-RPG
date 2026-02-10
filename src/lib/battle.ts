@@ -13,6 +13,7 @@ export function createBattleState(player: Player, enemy: Enemy): BattleState {
     turnCount: 0,
     droppedWeapon: null,
     isGuarding: false,
+    guardCounter: false,
   };
 }
 
@@ -20,7 +21,14 @@ export function createBattleState(player: Player, enemy: Enemy): BattleState {
 export function playerAttack(state: BattleState): BattleState {
   if (state.result !== "ongoing") return state;
 
-  const damage = calculatePlayerDamage(state.player, state.enemy);
+  let damage = calculatePlayerDamage(state.player, state.enemy);
+
+  // ガードカウンター: 敵最大HPの10%を上乗せ
+  if (state.guardCounter) {
+    const bonus = state.enemy.maxHp / 10n || 1n;
+    damage = damage + bonus;
+  }
+
   const newEnemyHp = state.enemy.hp - damage;
 
   return {
@@ -30,6 +38,7 @@ export function playerAttack(state: BattleState): BattleState {
       hp: newEnemyHp < 0n ? 0n : newEnemyHp,
     },
     turnCount: state.turnCount + 1,
+    guardCounter: false,
   };
 }
 
@@ -41,6 +50,7 @@ export function activateGuard(state: BattleState): BattleState {
   return {
     ...state,
     isGuarding: true,
+    guardCounter: false,
   };
 }
 
@@ -48,7 +58,7 @@ export function activateGuard(state: BattleState): BattleState {
 export function enemyAttack(state: BattleState): BattleState {
   if (state.result !== "ongoing") return state;
 
-  // ガード中 → ダメージ1/10（最低1）
+  // ガード中 → ダメージ1/10（最低1）→ ガードカウンター発動
   if (state.isGuarding) {
     const reducedDamage = state.enemy.atk / 10n || 1n;
     const newPlayer = takeDamage(state.player, reducedDamage);
@@ -56,6 +66,7 @@ export function enemyAttack(state: BattleState): BattleState {
       ...state,
       player: newPlayer,
       isGuarding: false,
+      guardCounter: true,
     };
   }
 

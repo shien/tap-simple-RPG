@@ -85,6 +85,7 @@ export type BattleState = {
   turnCount: number;
   droppedWeapon: Weapon | null;
   isGuarding: boolean;
+  guardCounter: boolean;
 };
 
 // === 先読みイベント ===
