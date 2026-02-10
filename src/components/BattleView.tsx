@@ -134,7 +134,7 @@ export function BattleView({
               : "bg-blue-600 active:bg-blue-700"
           }`}
         >
-          {battleState.isGuarding ? "ガード中!" : "ガード"}
+          {battleState.isGuarding ? "ガード中!" : battleState.guardCounter ? "ガードカウンター" : "ガード"}
         </button>
       </div>
     </div>

@@ -119,6 +119,7 @@ describe("playerAttack", () => {
       turnCount: 5,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = playerAttack(state);
 
@@ -159,6 +160,7 @@ describe("activateGuard", () => {
       turnCount: 1,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = activateGuard(state);
 
@@ -193,6 +195,7 @@ describe("enemyAttack", () => {
       turnCount: 3,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = enemyAttack(state);
 
@@ -249,6 +252,83 @@ describe("ガードサイクル", () => {
   });
 });
 
+describe("ガードカウンター", () => {
+  it("ガード成功後、guardCounter=true になる", () => {
+    const player = makePlayer({ hp: 50n, maxHp: 50n });
+    const enemy = makeEnemy({ atk: 20n });
+    let state = createBattleState(player, enemy);
+
+    state = activateGuard(state);
+    state = enemyAttack(state);
+
+    expect(state.guardCounter).toBe(true);
+    expect(state.isGuarding).toBe(false);
+  });
+
+  it("ガードカウンター中の攻撃は敵最大HPの10%が上乗せされる", () => {
+    // neutral属性: damage = atk(10) + weapon(5) = 15
+    // ガードカウンターボーナス: maxHp(100) / 10 = 10
+    // 合計: 25
+    const player = makePlayer({ atk: 10n, weapon: { name: "棒", element: "water", attackBonus: 5n } });
+    const enemy = makeEnemy({ element: "water", hp: 100n, maxHp: 100n, atk: 20n });
+    let state = createBattleState(player, enemy);
+
+    state = activateGuard(state);
+    state = enemyAttack(state);
+    expect(state.guardCounter).toBe(true);
+
+    state = playerAttack(state);
+    expect(state.enemy.hp).toBe(75n); // 100 - 25 = 75
+    expect(state.guardCounter).toBe(false);
+  });
+
+  it("ガードカウンターなしの通常攻撃ではボーナスが付かない", () => {
+    const player = makePlayer({ atk: 10n, weapon: { name: "棒", element: "water", attackBonus: 5n } });
+    const enemy = makeEnemy({ element: "water", hp: 100n, maxHp: 100n });
+    let state = createBattleState(player, enemy);
+
+    state = playerAttack(state);
+    expect(state.enemy.hp).toBe(85n); // 100 - 15 = 85
+  });
+
+  it("ガードカウンター中に再度ガードすると、カウンターがリセットされる", () => {
+    const player = makePlayer({ hp: 50n, maxHp: 50n });
+    const enemy = makeEnemy({ atk: 20n });
+    let state = createBattleState(player, enemy);
+
+    // ガード → 敵攻撃 → カウンター発動
+    state = activateGuard(state);
+    state = enemyAttack(state);
+    expect(state.guardCounter).toBe(true);
+
+    // カウンター中に再度ガード → カウンターリセット
+    state = activateGuard(state);
+    expect(state.guardCounter).toBe(false);
+    expect(state.isGuarding).toBe(true);
+  });
+
+  it("ガードカウンターのボーナスは1回の攻撃で消費される", () => {
+    const player = makePlayer({ atk: 10n, weapon: { name: "棒", element: "water", attackBonus: 5n } });
+    const enemy = makeEnemy({ element: "water", hp: 200n, maxHp: 200n, atk: 20n });
+    let state = createBattleState(player, enemy);
+
+    // ガード → カウンター攻撃
+    state = activateGuard(state);
+    state = enemyAttack(state);
+    state = playerAttack(state);
+    expect(state.enemy.hp).toBe(165n); // 200 - (15 + 20) = 165
+
+    // 2回目の攻撃はボーナスなし
+    state = playerAttack(state);
+    expect(state.enemy.hp).toBe(150n); // 165 - 15 = 150
+  });
+
+  it("初期状態で guardCounter=false", () => {
+    const state = createBattleState(makePlayer(), makeEnemy());
+    expect(state.guardCounter).toBe(false);
+  });
+});
+
 describe("checkBattleResult", () => {
   it("敵HP0以下で 'victory'", () => {
     const state: BattleState = {
@@ -258,6 +338,7 @@ describe("checkBattleResult", () => {
       turnCount: 1,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = checkBattleResult(state);
 
@@ -272,6 +353,7 @@ describe("checkBattleResult", () => {
       turnCount: 1,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = checkBattleResult(state);
 
@@ -286,6 +368,7 @@ describe("checkBattleResult", () => {
       turnCount: 1,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = checkBattleResult(state);
 
@@ -300,6 +383,7 @@ describe("checkBattleResult", () => {
       turnCount: 1,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = checkBattleResult(state);
 
@@ -316,6 +400,7 @@ describe("processBattleRewards", () => {
       turnCount: 3,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -336,6 +421,7 @@ describe("processBattleRewards", () => {
       turnCount: 3,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -351,6 +437,7 @@ describe("processBattleRewards", () => {
       turnCount: 3,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -368,6 +455,7 @@ describe("processBattleRewards", () => {
       turnCount: 3,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -382,6 +470,7 @@ describe("processBattleRewards", () => {
       turnCount: 3,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -398,6 +487,7 @@ describe("processBattleRewards", () => {
       turnCount: 1,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = processBattleRewards(state, 1);
 
@@ -413,6 +503,7 @@ describe("processBattleRewards", () => {
       turnCount: 3,
       droppedWeapon: null,
       isGuarding: false,
+      guardCounter: false,
     };
     const after = processBattleRewards(state, 1);
 
