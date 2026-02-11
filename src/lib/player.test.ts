@@ -14,8 +14,8 @@ describe("createInitialPlayer", () => {
     const p = createInitialPlayer();
     expect(p.level).toBe(1);
     expect(p.exp).toBe(0n);
-    expect(p.hp).toBe(50n);
-    expect(p.maxHp).toBe(50n);
+    expect(p.hp).toBe(65n);
+    expect(p.maxHp).toBe(65n);
     expect(p.atk).toBe(10n);
     expect(p.gold).toBe(0n);
   });
@@ -65,20 +65,20 @@ describe("levelUp", () => {
     expect(leveled.level).toBe(2);
   });
 
-  it("Lv1→2でMaxHP+12、ATK+5", () => {
+  it("Lv1→2でMaxHP+18、ATK+5", () => {
     const p = createInitialPlayer();
     const leveled = levelUp(p);
-    expect(leveled.maxHp).toBe(p.maxHp + 12n);
+    expect(leveled.maxHp).toBe(p.maxHp + 18n);
     expect(leveled.atk).toBe(p.atk + 5n);
   });
 
   it("HPも成長量分だけ増加する", () => {
     const p = createInitialPlayer();
     const leveled = levelUp(p);
-    expect(leveled.hp).toBe(p.hp + 12n);
+    expect(leveled.hp).toBe(p.hp + 18n);
   });
 
-  it("Lv11→12でMaxHP+60、ATK+25", () => {
+  it("Lv11→12でMaxHP+80、ATK+25", () => {
     // Lv11のプレイヤーを作る
     let p = createInitialPlayer();
     for (let i = 0; i < 10; i++) {
@@ -86,7 +86,7 @@ describe("levelUp", () => {
     }
     expect(p.level).toBe(11);
     const leveled = levelUp(p);
-    expect(leveled.maxHp).toBe(p.maxHp + 60n);
+    expect(leveled.maxHp).toBe(p.maxHp + 80n);
     expect(leveled.atk).toBe(p.atk + 25n);
   });
 
@@ -112,25 +112,25 @@ describe("levelUp", () => {
     expect(leveled.atk).toBe(p.atk + 1000n);
   });
 
-  it("Lv51→52でMaxHP+20000、ATK+8000", () => {
+  it("Lv51→52でMaxHP+15000、ATK+8000", () => {
     let p = createInitialPlayer();
     for (let i = 0; i < 50; i++) {
       p = levelUp(p);
     }
     expect(p.level).toBe(51);
     const leveled = levelUp(p);
-    expect(leveled.maxHp).toBe(p.maxHp + 20000n);
+    expect(leveled.maxHp).toBe(p.maxHp + 15000n);
     expect(leveled.atk).toBe(p.atk + 8000n);
   });
 
-  it("Lv71→72でMaxHP+200000、ATK+80000", () => {
+  it("Lv71→72でMaxHP+150000、ATK+80000", () => {
     let p = createInitialPlayer();
     for (let i = 0; i < 70; i++) {
       p = levelUp(p);
     }
     expect(p.level).toBe(71);
     const leveled = levelUp(p);
-    expect(leveled.maxHp).toBe(p.maxHp + 200000n);
+    expect(leveled.maxHp).toBe(p.maxHp + 150000n);
     expect(leveled.atk).toBe(p.atk + 80000n);
   });
 
@@ -196,7 +196,7 @@ describe("takeDamage", () => {
   it("ダメージでHPが減る", () => {
     const p = createInitialPlayer();
     const damaged = takeDamage(p, 20n);
-    expect(damaged.hp).toBe(30n);
+    expect(damaged.hp).toBe(45n);
   });
 
   it("HPは0未満にならない", () => {
