@@ -60,6 +60,7 @@ export function generateEnemy(areaId: AreaId, presetElement?: Element): Enemy {
   const candidates = getMonstersForArea(areaId);
 
   let name: string;
+  let imageUrl: string | undefined;
   let element: Element;
 
   if (presetElement) {
@@ -67,15 +68,20 @@ export function generateEnemy(areaId: AreaId, presetElement?: Element): Enemy {
     element = presetElement;
     const samElementCandidates = candidates.filter((c) => c.element === presetElement);
     if (samElementCandidates.length > 0) {
-      name = samElementCandidates[Math.floor(Math.random() * samElementCandidates.length)].name;
+      const picked = samElementCandidates[Math.floor(Math.random() * samElementCandidates.length)];
+      name = picked.name;
+      imageUrl = picked.imageUrl;
     } else if (candidates.length > 0) {
-      name = candidates[Math.floor(Math.random() * candidates.length)].name;
+      const picked = candidates[Math.floor(Math.random() * candidates.length)];
+      name = picked.name;
+      imageUrl = picked.imageUrl;
     } else {
       name = "モンスター";
     }
   } else if (candidates.length > 0) {
     const picked = candidates[Math.floor(Math.random() * candidates.length)];
     name = picked.name;
+    imageUrl = picked.imageUrl;
     element = picked.element;
   } else {
     name = "モンスター";
@@ -105,6 +111,7 @@ export function generateEnemy(areaId: AreaId, presetElement?: Element): Enemy {
 
   return {
     name,
+    imageUrl,
     element,
     hp,
     maxHp: hp,
@@ -122,6 +129,7 @@ export function generateBoss(areaId: AreaId, presetElement?: Element): Enemy {
   const bossConfig = getBossForArea(areaId);
 
   const name = bossConfig ? bossConfig.name : `${area.name}のボス`;
+  const imageUrl = bossConfig?.imageUrl;
   const element = presetElement
     ? presetElement
     : bossConfig
@@ -147,6 +155,7 @@ export function generateBoss(areaId: AreaId, presetElement?: Element): Enemy {
 
   return {
     name,
+    imageUrl,
     element,
     hp,
     maxHp: hp,
