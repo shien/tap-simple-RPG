@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { BattleState, GameState, ElementAdvantage, Weapon } from "@/lib/types";
 import { getElementAdvantage, getElementMultiplier } from "@/lib/element";
 import { ElementBadge } from "./ElementBadge";
 import { HpBar } from "./HpBar";
 import { BattleResultView } from "./BattleResultView";
 
-const ENEMY_ATTACK_INTERVAL = 1500;
+const ENEMY_ATTACK_MIN = 1500;
+const ENEMY_ATTACK_MAX = 3000;
+const ENEMY_ATTACK_WARN = 1000;
 
 const ADVANTAGE_DISPLAY: Record<
   ElementAdvantage,
@@ -36,27 +38,44 @@ export function BattleView({
   onEndBattle: () => void;
 }) {
   const { player, enemy, result } = battleState;
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const attackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isFlashing, setIsFlashing] = useState(false);
 
-  // 敵の自動攻撃
+  // 敵の自動攻撃（ランダム間隔 + 攻撃前点滅）
   useEffect(() => {
     if (result !== "ongoing") {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      if (attackTimeoutRef.current) clearTimeout(attackTimeoutRef.current);
+      if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+      attackTimeoutRef.current = null;
+      flashTimeoutRef.current = null;
+      setIsFlashing(false);
       return;
     }
 
-    intervalRef.current = setInterval(() => {
-      onEnemyAttack();
-    }, ENEMY_ATTACK_INTERVAL);
+    function scheduleNextAttack() {
+      const interval = ENEMY_ATTACK_MIN + Math.random() * (ENEMY_ATTACK_MAX - ENEMY_ATTACK_MIN);
+      const flashDelay = Math.max(0, interval - ENEMY_ATTACK_WARN);
+
+      flashTimeoutRef.current = setTimeout(() => {
+        setIsFlashing(true);
+      }, flashDelay);
+
+      attackTimeoutRef.current = setTimeout(() => {
+        setIsFlashing(false);
+        onEnemyAttack();
+        scheduleNextAttack();
+      }, interval);
+    }
+
+    scheduleNextAttack();
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      if (attackTimeoutRef.current) clearTimeout(attackTimeoutRef.current);
+      if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+      attackTimeoutRef.current = null;
+      flashTimeoutRef.current = null;
+      setIsFlashing(false);
     };
   }, [result, onEnemyAttack]);
 
@@ -90,7 +109,11 @@ export function BattleView({
 
         {/* モンスター画像エリア */}
         <div className="my-3 flex items-center justify-center">
-          <div className="flex h-64 w-64 items-center justify-center rounded-lg border border-zinc-600 bg-zinc-900">
+          <div className={`flex h-64 w-64 items-center justify-center rounded-lg bg-zinc-900 ${
+            isFlashing
+              ? "animate-enemy-flash border-2 border-red-500"
+              : "border border-zinc-600"
+          }`}>
             {enemy.imageUrl ? (
               <img src={enemy.imageUrl} alt={enemy.name} className="h-full w-full rounded-lg object-contain" />
             ) : (

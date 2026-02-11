@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes enemy-flash {
+  0%, 100% {
+    border-color: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+  }
+  50% {
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.animate-enemy-flash {
+  animation: enemy-flash 0.3s ease-in-out infinite;
+}

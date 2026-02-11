@@ -24,7 +24,7 @@ export function generateWeaponDrop(areaId: AreaId): Weapon {
   }
 
   const attackBonus = BigInt(
-    Math.floor(area.rewardMultiplier * 5 * (0.8 + Math.random() * 0.4))
+    Math.floor(area.rewardMultiplier * (0.8 + Math.random() * 0.4))
   );
 
   return { name, element, attackBonus };
