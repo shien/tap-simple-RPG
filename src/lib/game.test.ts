@@ -42,8 +42,8 @@ describe("createNewGame", () => {
     const state = createNewGame();
 
     expect(state.player.level).toBe(1);
-    expect(state.player.hp).toBe(65n);
-    expect(state.player.maxHp).toBe(65n);
+    expect(state.player.hp).toBe(50n);
+    expect(state.player.maxHp).toBe(50n);
     expect(state.player.atk).toBe(10n);
     expect(state.player.exp).toBe(0n);
     expect(state.player.gold).toBe(0n);
@@ -241,7 +241,7 @@ describe("handleDeath", () => {
     const after = handleDeath();
 
     expect(after.player.level).toBe(1);
-    expect(after.player.hp).toBe(65n);
+    expect(after.player.hp).toBe(50n);
     expect(after.player.exp).toBe(0n);
     expect(after.player.gold).toBe(0n);
     expect(after.currentArea).toBe(1);
