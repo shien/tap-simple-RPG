@@ -50,6 +50,18 @@ export function BattlePrepView({
             </span>
           )}
         </div>
+
+        {/* モンスター画像エリア */}
+        <div className="my-3 flex items-center justify-center">
+          <div className="flex h-64 w-64 items-center justify-center rounded-lg border border-zinc-600 bg-zinc-900">
+            {enemy.imageUrl ? (
+              <img src={enemy.imageUrl} alt={enemy.name} className="h-full w-full rounded-lg object-contain" />
+            ) : (
+              <span className="text-4xl text-zinc-600">?</span>
+            )}
+          </div>
+        </div>
+
         <HpBar current={enemy.hp} max={enemy.maxHp} label="敵HP" colorClass="bg-red-500" />
       </div>
 

@@ -25,6 +25,7 @@ export type Player = {
 // === 敵 ===
 export type Enemy = {
   name: string;
+  imageUrl?: string;
   element: Element;
   hp: bigint;
   maxHp: bigint;
@@ -60,6 +61,7 @@ export type MonsterConfig = {
   id: string;
   name: string;
   description: string;
+  imageUrl?: string;
   areaIds: AreaId[];
   element: Element;
   isBoss: boolean;
