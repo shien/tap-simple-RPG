@@ -58,10 +58,12 @@ export function activateGuard(state: BattleState): BattleState {
 export function enemyAttack(state: BattleState): BattleState {
   if (state.result !== "ongoing") return state;
 
-  // ガード中 → ダメージ1/10（最低1）→ ガードカウンター発動
+  // ガード中 → ダメージ1/10（最低1）→ HP最低1保証 → ガードカウンター発動
   if (state.isGuarding) {
     const reducedDamage = state.enemy.atk / 10n || 1n;
-    const newPlayer = takeDamage(state.player, reducedDamage);
+    const newHp = state.player.hp - reducedDamage;
+    const clampedHp = newHp < 1n ? 1n : newHp;
+    const newPlayer = { ...state.player, hp: clampedHp };
     return {
       ...state,
       player: newPlayer,

@@ -222,6 +222,27 @@ describe("enemyAttack", () => {
     expect(after.player.hp).toBe(49n);
   });
 
+  it("isGuarding=true の時、HPが1未満にならない（HP1保証）", () => {
+    const player = makePlayer({ hp: 1n, maxHp: 50n });
+    const enemy = makeEnemy({ atk: 100n });
+    const state = activateGuard(createBattleState(player, enemy));
+    const after = enemyAttack(state);
+
+    // 100 / 10 = 10 → HP: 1 - 10 = -9 → 最低1保証 → HP: 1
+    expect(after.player.hp).toBe(1n);
+    expect(after.guardCounter).toBe(true);
+  });
+
+  it("isGuarding=true で致死ダメージでもHP1で生存する", () => {
+    const player = makePlayer({ hp: 3n, maxHp: 50n });
+    const enemy = makeEnemy({ atk: 500n });
+    const state = activateGuard(createBattleState(player, enemy));
+    const after = enemyAttack(state);
+
+    // 500 / 10 = 50 → HP: 3 - 50 = -47 → 最低1保証 → HP: 1
+    expect(after.player.hp).toBe(1n);
+  });
+
   it("isGuarding=true の時、ガード後に isGuarding=false になる", () => {
     const state = activateGuard(createBattleState(makePlayer(), makeEnemy()));
     const after = enemyAttack(state);
