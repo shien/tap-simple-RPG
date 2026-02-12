@@ -154,10 +154,12 @@ export function BattleView({
           className={`flex-1 rounded-full py-5 text-xl font-bold text-white ${
             battleState.isGuarding
               ? "bg-red-400"
-              : "bg-red-600 active:bg-red-700"
+              : battleState.guardCounter
+                ? "bg-yellow-500 active:bg-yellow-600"
+                : "bg-red-600 active:bg-red-700"
           }`}
         >
-          攻撃!
+          {battleState.guardCounter ? "カウンター!" : "攻撃!"}
         </button>
         <button
           onClick={onGuard}
@@ -168,7 +170,7 @@ export function BattleView({
               : "bg-blue-600 active:bg-blue-700"
           }`}
         >
-          {battleState.isGuarding ? "ガード中!" : battleState.guardCounter ? "ガードカウンター" : "ガード"}
+          {battleState.isGuarding ? "ガード中!" : "ガード"}
         </button>
       </div>
     </div>
