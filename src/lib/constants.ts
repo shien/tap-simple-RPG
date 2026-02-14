@@ -1,4 +1,4 @@
-import type { AreaConfig, Element, ElementAdvantage } from "./types";
+import type { AreaConfig, Element, ElementAdvantage, Item, ItemType } from "./types";
 
 // === 属性相性マップ ===
 // key: 攻撃側属性, value: { 防御側属性: 相性 }
@@ -141,17 +141,34 @@ export const INITIAL_HEAL_COUNT = 3;
 export const BATTLE_PREP_HEAL_RATIO = 0.7;
 
 // === イベント確率テーブル（エリアごと） ===
-// battle / treasure の出現割合（最終マスのbossは別処理）
+// battle / treasure / shop の出現割合（最終マスのbossは別処理）
 export const EVENT_PROBABILITY_TABLE: Record<
   number,
-  { battle: number; treasure: number }
+  { battle: number; treasure: number; shop: number }
 > = {
-  1: { battle: 0.80, treasure: 0.20 },
-  2: { battle: 0.80, treasure: 0.20 },
-  3: { battle: 0.80, treasure: 0.20 },
-  4: { battle: 0.80, treasure: 0.20 },
-  5: { battle: 0.85, treasure: 0.15 },
-  6: { battle: 0.85, treasure: 0.15 },
-  7: { battle: 0.85, treasure: 0.15 },
-  8: { battle: 0.85, treasure: 0.15 },
+  1: { battle: 0.80, treasure: 0.12, shop: 0.08 },
+  2: { battle: 0.80, treasure: 0.12, shop: 0.08 },
+  3: { battle: 0.80, treasure: 0.12, shop: 0.08 },
+  4: { battle: 0.80, treasure: 0.12, shop: 0.08 },
+  5: { battle: 0.85, treasure: 0.09, shop: 0.06 },
+  6: { battle: 0.85, treasure: 0.09, shop: 0.06 },
+  7: { battle: 0.85, treasure: 0.09, shop: 0.06 },
+  8: { battle: 0.85, treasure: 0.09, shop: 0.06 },
 };
+
+// === アイテム定義 ===
+export const ITEM_DEFINITIONS: Record<ItemType, Item> = {
+  elementChange: { type: "elementChange", name: "武器の塗料" },
+  perfectGuard: { type: "perfectGuard", name: "古びた鋼鉄の盾" },
+  heal40: { type: "heal40", name: "回復の薬" },
+};
+
+// === アイテム価格ベース倍率 ===
+export const ITEM_PRICE_MULTIPLIERS: Record<ItemType, number> = {
+  elementChange: 3,
+  perfectGuard: 5,
+  heal40: 2,
+};
+
+// === 回復アイテム回復割合 ===
+export const HEAL_ITEM_RATIO = 0.4;

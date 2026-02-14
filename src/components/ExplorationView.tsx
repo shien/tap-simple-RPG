@@ -19,9 +19,16 @@ export function ExplorationView({
       <EventPreview events={gameState.upcomingEvents} />
       <EventResultMessage message={message} />
       <PlayerStatus player={gameState.player} />
-      <p className="text-sm text-green-400 text-center">
-        回復残り: {gameState.healCount}回
-      </p>
+      <div className="flex items-center justify-center gap-4 text-sm">
+        <p className="text-green-400">
+          回復残り: {gameState.healCount}回
+        </p>
+        {gameState.player.items.length > 0 && (
+          <p className="text-purple-400">
+            アイテム: {gameState.player.items.length}個
+          </p>
+        )}
+      </div>
       <button
         onClick={onMove}
         className="w-full rounded-full bg-blue-600 py-4 text-lg font-bold text-white active:bg-blue-700"

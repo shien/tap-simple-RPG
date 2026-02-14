@@ -6,8 +6,28 @@ import {
   activateGuard,
   checkBattleResult,
   processBattleRewards,
+  useElementChangeItem,
+  usePerfectGuardItem,
+  useHealItem,
+  restoreWeaponElement,
 } from "./battle";
 import type { Player, Enemy, BattleState } from "./types";
+
+// テスト用のBattleStateを生成するヘルパー
+function makeBattleState(overrides: Partial<BattleState> = {}): BattleState {
+  return {
+    player: makePlayer(),
+    enemy: makeEnemy(),
+    result: "ongoing",
+    turnCount: 0,
+    droppedWeapon: null,
+    isGuarding: false,
+    guardCounter: false,
+    perfectGuard: false,
+    originalWeaponElement: null,
+    ...overrides,
+  };
+}
 
 // テスト用のプレイヤーを生成
 function makePlayer(overrides: Partial<Player> = {}): Player {
@@ -19,6 +39,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     atk: 10n,
     gold: 0n,
     weapon: { name: "棒", element: "water", attackBonus: 5n },
+    items: [],
     ...overrides,
   };
 }
@@ -120,6 +141,8 @@ describe("playerAttack", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = playerAttack(state);
 
@@ -161,6 +184,8 @@ describe("activateGuard", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = activateGuard(state);
 
@@ -196,6 +221,8 @@ describe("enemyAttack", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = enemyAttack(state);
 
@@ -348,6 +375,16 @@ describe("ガードカウンター", () => {
     const state = createBattleState(makePlayer(), makeEnemy());
     expect(state.guardCounter).toBe(false);
   });
+
+  it("初期状態で perfectGuard=false", () => {
+    const state = createBattleState(makePlayer(), makeEnemy());
+    expect(state.perfectGuard).toBe(false);
+  });
+
+  it("初期状態で originalWeaponElement=null", () => {
+    const state = createBattleState(makePlayer(), makeEnemy());
+    expect(state.originalWeaponElement).toBeNull();
+  });
 });
 
 describe("checkBattleResult", () => {
@@ -360,6 +397,8 @@ describe("checkBattleResult", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = checkBattleResult(state);
 
@@ -375,6 +414,8 @@ describe("checkBattleResult", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = checkBattleResult(state);
 
@@ -390,6 +431,8 @@ describe("checkBattleResult", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = checkBattleResult(state);
 
@@ -405,6 +448,8 @@ describe("checkBattleResult", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = checkBattleResult(state);
 
@@ -422,6 +467,8 @@ describe("processBattleRewards", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -443,6 +490,8 @@ describe("processBattleRewards", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -459,6 +508,8 @@ describe("processBattleRewards", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -477,6 +528,8 @@ describe("processBattleRewards", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -492,6 +545,8 @@ describe("processBattleRewards", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -509,6 +564,8 @@ describe("processBattleRewards", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = processBattleRewards(state, 1);
 
@@ -525,10 +582,170 @@ describe("processBattleRewards", () => {
       droppedWeapon: null,
       isGuarding: false,
       guardCounter: false,
+      perfectGuard: false,
+      originalWeaponElement: null,
     };
     const after = processBattleRewards(state, 1);
 
     // exp = 5 + 10 = 15 ≥ 10 → レベルアップ
     expect(after.player.level).toBeGreaterThanOrEqual(2);
+  });
+
+  it("属性変更中の勝利後、武器属性が元に戻る", () => {
+    const player = makePlayer({
+      weapon: { name: "棒", element: "water", attackBonus: 5n },
+      items: [{ type: "elementChange", name: "武器の塗料" }],
+    });
+    const enemy = makeEnemy({ hp: 1n, maxHp: 1n, element: "water" });
+    let state = createBattleState(player, enemy);
+
+    // 属性変更 → 雷に変更
+    state = useElementChangeItem(state, "thunder");
+    expect(state.player.weapon.element).toBe("thunder");
+    expect(state.originalWeaponElement).toBe("water");
+
+    // 敵を倒す
+    state = playerAttack(state);
+    state = checkBattleResult(state);
+    expect(state.result).toBe("victory");
+
+    // 報酬処理で属性が戻る
+    state = processBattleRewards(state, 1);
+    expect(state.player.weapon.element).toBe("water");
+    expect(state.originalWeaponElement).toBeNull();
+  });
+});
+
+describe("useElementChangeItem", () => {
+  it("武器属性が変更され、元の属性が保存される", () => {
+    const player = makePlayer({
+      weapon: { name: "棒", element: "water", attackBonus: 5n },
+      items: [{ type: "elementChange", name: "武器の塗料" }],
+    });
+    const state = createBattleState(player, makeEnemy());
+    const after = useElementChangeItem(state, "thunder");
+
+    expect(after.player.weapon.element).toBe("thunder");
+    expect(after.originalWeaponElement).toBe("water");
+    expect(after.player.items).toHaveLength(0);
+  });
+
+  it("2回使用しても元の属性が保持される", () => {
+    const player = makePlayer({
+      weapon: { name: "棒", element: "water", attackBonus: 5n },
+      items: [
+        { type: "elementChange", name: "武器の塗料" },
+        { type: "elementChange", name: "武器の塗料" },
+      ],
+    });
+    const state = createBattleState(player, makeEnemy());
+    const first = useElementChangeItem(state, "thunder");
+    const second = useElementChangeItem(first, "earth");
+
+    expect(second.player.weapon.element).toBe("earth");
+    expect(second.originalWeaponElement).toBe("water"); // 最初の元属性を保持
+  });
+
+  it("result!='ongoing' なら変更しない", () => {
+    const state = makeBattleState({ result: "victory" });
+    const after = useElementChangeItem(state, "thunder");
+    expect(after).toBe(state);
+  });
+});
+
+describe("usePerfectGuardItem", () => {
+  it("perfectGuard=true になり、アイテムが消費される", () => {
+    const player = makePlayer({
+      items: [{ type: "perfectGuard", name: "古びた鋼鉄の盾" }],
+    });
+    const state = createBattleState(player, makeEnemy());
+    const after = usePerfectGuardItem(state);
+
+    expect(after.perfectGuard).toBe(true);
+    expect(after.player.items).toHaveLength(0);
+  });
+
+  it("result!='ongoing' なら変更しない", () => {
+    const state = makeBattleState({ result: "defeat" });
+    const after = usePerfectGuardItem(state);
+    expect(after).toBe(state);
+  });
+});
+
+describe("完全防御（古びた鋼鉄の盾）", () => {
+  it("perfectGuard中はダメージ0", () => {
+    const player = makePlayer({ hp: 50n, maxHp: 50n, items: [{ type: "perfectGuard", name: "古びた鋼鉄の盾" }] });
+    const enemy = makeEnemy({ atk: 100n });
+    let state = createBattleState(player, enemy);
+    state = usePerfectGuardItem(state);
+    state = enemyAttack(state);
+
+    expect(state.player.hp).toBe(50n); // ダメージ0
+    expect(state.perfectGuard).toBe(false); // フラグ解除
+    expect(state.guardCounter).toBe(true); // カウンター発動
+  });
+
+  it("通常ガードとperfectGuardが同時にある場合、perfectGuardが優先", () => {
+    const player = makePlayer({ hp: 50n, maxHp: 50n, items: [{ type: "perfectGuard", name: "古びた鋼鉄の盾" }] });
+    const enemy = makeEnemy({ atk: 100n });
+    let state = createBattleState(player, enemy);
+    state = usePerfectGuardItem(state);
+    state = activateGuard(state);
+    state = enemyAttack(state);
+
+    expect(state.player.hp).toBe(50n); // ダメージ0（perfectGuard優先）
+  });
+});
+
+describe("useHealItem", () => {
+  it("MaxHPの40%を回復する", () => {
+    const player = makePlayer({
+      hp: 20n,
+      maxHp: 100n,
+      items: [{ type: "heal40", name: "回復の薬" }],
+    });
+    const state = createBattleState(player, makeEnemy());
+    const after = useHealItem(state);
+
+    // 100 * 0.4 = 40 → 20 + 40 = 60
+    expect(after.player.hp).toBe(60n);
+    expect(after.player.items).toHaveLength(0);
+  });
+
+  it("MaxHPを超えない", () => {
+    const player = makePlayer({
+      hp: 90n,
+      maxHp: 100n,
+      items: [{ type: "heal40", name: "回復の薬" }],
+    });
+    const state = createBattleState(player, makeEnemy());
+    const after = useHealItem(state);
+
+    expect(after.player.hp).toBe(100n);
+  });
+
+  it("result!='ongoing' なら変更しない", () => {
+    const state = makeBattleState({ result: "victory" });
+    const after = useHealItem(state);
+    expect(after).toBe(state);
+  });
+});
+
+describe("restoreWeaponElement", () => {
+  it("originalWeaponElement があれば武器属性を復元する", () => {
+    const state = makeBattleState({
+      player: makePlayer({ weapon: { name: "棒", element: "thunder", attackBonus: 5n } }),
+      originalWeaponElement: "water",
+    });
+    const after = restoreWeaponElement(state);
+
+    expect(after.player.weapon.element).toBe("water");
+    expect(after.originalWeaponElement).toBeNull();
+  });
+
+  it("originalWeaponElement が null なら変更しない", () => {
+    const state = makeBattleState({ originalWeaponElement: null });
+    const after = restoreWeaponElement(state);
+    expect(after).toBe(state);
   });
 });

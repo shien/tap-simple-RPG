@@ -1,6 +1,7 @@
-import type { GameState, Weapon } from "./types";
+import type { GameState, ItemType, Weapon } from "./types";
 import { AREAS, INITIAL_HEAL_COUNT, BATTLE_PREP_HEAL_RATIO, STEPS_PER_AREA } from "./constants";
 import { createInitialPlayer, heal } from "./player";
+import { createItem } from "./item";
 import { advanceArea } from "./map";
 import { getCurrentEvent } from "./map";
 import { generateAreaEvents, generateUpcomingEvents } from "./event";
@@ -33,6 +34,9 @@ export function processEvent(state: GameState): GameState {
 
     case "treasure":
       return { ...state, phase: "treasureSelect" };
+
+    case "shop":
+      return { ...state, phase: "shop" };
   }
 }
 
@@ -76,6 +80,29 @@ export function processTreasureWeapon(state: GameState, weapon: Weapon): GameSta
     player: { ...state.player, weapon },
     phase: "exploration",
   };
+}
+
+/** ショップで購入 */
+export function processShopPurchase(state: GameState, itemType: ItemType, price: bigint): GameState {
+  if (state.phase !== "shop") return state;
+  if (state.player.gold < price) return state;
+
+  const newItem = createItem(itemType);
+
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      gold: state.player.gold - price,
+      items: [...state.player.items, newItem],
+    },
+  };
+}
+
+/** ショップから立ち去る */
+export function processShopLeave(state: GameState): GameState {
+  if (state.phase !== "shop") return state;
+  return { ...state, phase: "exploration" };
 }
 
 /** 戦闘勝利後の処理 */

@@ -12,8 +12,8 @@ describe("rollEvent", () => {
     }
   });
 
-  it(`step=1〜${STEPS_PER_AREA - 1} で battle/treasure のいずれかが返る`, () => {
-    const valid = ["battle", "treasure"];
+  it(`step=1〜${STEPS_PER_AREA - 1} で battle/treasure/shop のいずれかが返る`, () => {
+    const valid = ["battle", "treasure", "shop"];
     for (let step = 1; step <= STEPS_PER_AREA - 1; step++) {
       for (let i = 0; i < 20; i++) {
         expect(valid).toContain(rollEvent(1, step));
@@ -25,6 +25,7 @@ describe("rollEvent", () => {
     const counts: Record<string, number> = {
       battle: 0,
       treasure: 0,
+      shop: 0,
     };
     for (let i = 0; i < 200; i++) {
       const ev = rollEvent(1, 1);
@@ -32,6 +33,7 @@ describe("rollEvent", () => {
     }
     // エリア1: battle=0.80 が最多
     expect(counts.battle).toBeGreaterThan(counts.treasure);
+    expect(counts.battle).toBeGreaterThan(counts.shop);
   });
 });
 
@@ -48,8 +50,8 @@ describe("generateAreaEvents", () => {
     }
   });
 
-  it(`step1〜${STEPS_PER_AREA - 1} は battle/treasure のいずれか`, () => {
-    const valid = ["battle", "treasure"];
+  it(`step1〜${STEPS_PER_AREA - 1} は battle/treasure/shop のいずれか`, () => {
+    const valid = ["battle", "treasure", "shop"];
     for (let i = 0; i < 10; i++) {
       const events = generateAreaEvents(1);
       for (let s = 0; s < STEPS_PER_AREA - 1; s++) {
@@ -70,11 +72,11 @@ describe("generateAreaEvents", () => {
     }
   });
 
-  it("treasure イベントに enemyElement が含まれない", () => {
+  it("treasure/shop イベントに enemyElement が含まれない", () => {
     for (let i = 0; i < 50; i++) {
       const events = generateAreaEvents(1);
       for (const ev of events) {
-        if (ev.type === "treasure") {
+        if (ev.type === "treasure" || ev.type === "shop") {
           expect(ev.enemyElement).toBeUndefined();
         }
       }

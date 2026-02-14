@@ -20,6 +20,7 @@ export type Player = {
   atk: bigint;
   gold: bigint;
   weapon: Weapon;
+  items: Item[];
 };
 
 // === 敵 ===
@@ -36,8 +37,23 @@ export type Enemy = {
   abnormalTier: number | null;
 };
 
+// === アイテム種別 ===
+export type ItemType = "elementChange" | "perfectGuard" | "heal40";
+
+// === アイテム ===
+export type Item = {
+  type: ItemType;
+  name: string;
+};
+
+// === ショップ商品 ===
+export type ShopItem = {
+  item: Item;
+  price: bigint;
+};
+
 // === イベント種別 ===
-export type EventType = "battle" | "treasure" | "boss";
+export type EventType = "battle" | "treasure" | "boss" | "shop";
 
 // === エリアID ===
 export type AreaId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -88,6 +104,8 @@ export type BattleState = {
   droppedWeapon: Weapon | null;
   isGuarding: boolean;
   guardCounter: boolean;
+  perfectGuard: boolean;
+  originalWeaponElement: Element | null;
 };
 
 // === 先読みイベント ===
@@ -103,6 +121,6 @@ export type GameState = {
   currentStep: number; // 1〜8
   areaEvents: UpcomingEvent[]; // エリア内のstep1〜8の事前生成イベント列
   upcomingEvents: UpcomingEvent[];
-  phase: "exploration" | "battlePrep" | "battle" | "event" | "treasureSelect" | "areaMove" | "gameover" | "gameClear";
+  phase: "exploration" | "battlePrep" | "battle" | "event" | "treasureSelect" | "areaMove" | "gameover" | "gameClear" | "shop";
   healCount: number; // 回復残回数（初期3、ボス撃破で+1）
 };
