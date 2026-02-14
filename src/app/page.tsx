@@ -27,7 +27,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-900 text-zinc-100">
-      <main className="w-full max-w-md px-4 py-6">
+      <main className="w-full max-w-md px-4 py-3">
         {gameState.phase === "gameClear" && (
           <GameClearView onRestart={() => { restart(); setStarted(false); }} />
         )}

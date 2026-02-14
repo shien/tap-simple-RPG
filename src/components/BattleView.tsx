@@ -110,7 +110,7 @@ export function BattleView({
   const advDisplay = ADVANTAGE_DISPLAY[advantage];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {/* 敵情報 */}
       <div className="rounded-lg border border-zinc-700 bg-zinc-800 p-4">
         <div className="mb-2 flex items-center gap-2">
@@ -125,7 +125,7 @@ export function BattleView({
 
         {/* モンスター画像エリア */}
         <div className="my-3 flex items-center justify-center">
-          <div className={`flex h-64 w-64 items-center justify-center rounded-lg bg-zinc-900 ${
+          <div className={`flex h-48 w-48 items-center justify-center rounded-lg bg-zinc-900 ${
             isFlashing
               ? "animate-enemy-flash border-2 border-red-500"
               : "border border-zinc-600"

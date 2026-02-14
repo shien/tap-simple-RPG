@@ -14,7 +14,7 @@ export function ExplorationView({
   onMove: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <AreaInfo areaId={gameState.currentArea} currentStep={gameState.currentStep} />
       <EventPreview events={gameState.upcomingEvents} />
       <EventResultMessage message={message} />
