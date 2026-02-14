@@ -35,7 +35,7 @@ export function TreasureSelectView({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <h2 className="mx-auto rounded-2xl bg-yellow-900/70 border border-yellow-600 px-8 py-3 text-center text-xl font-bold text-yellow-300 shadow-lg">
         宝箱を発見!
       </h2>

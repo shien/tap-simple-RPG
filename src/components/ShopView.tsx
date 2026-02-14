@@ -22,7 +22,7 @@ export function ShopView({
   const playerGold = gameState.player.gold;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <div className="rounded-lg border border-zinc-700 bg-zinc-800 p-4 text-center">
         <p className="text-lg font-bold text-yellow-300">ショップ</p>
         <p className="mt-1 text-sm text-zinc-400">

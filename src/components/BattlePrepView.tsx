@@ -34,7 +34,7 @@ export function BattlePrepView({
   const canHeal = gameState.healCount > 0;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <h2 className="mx-auto rounded-2xl bg-yellow-900/70 border border-yellow-600 px-8 py-3 text-center text-xl font-bold text-yellow-300 shadow-lg">
         戦闘準備
       </h2>
@@ -53,7 +53,7 @@ export function BattlePrepView({
 
         {/* モンスター画像エリア */}
         <div className="my-3 flex items-center justify-center">
-          <div className="flex h-64 w-64 items-center justify-center rounded-lg border border-zinc-600 bg-zinc-900">
+          <div className="flex h-48 w-48 items-center justify-center rounded-lg border border-zinc-600 bg-zinc-900">
             {enemy.imageUrl ? (
               <img src={enemy.imageUrl} alt={enemy.name} className="h-full w-full rounded-lg object-contain" />
             ) : (
