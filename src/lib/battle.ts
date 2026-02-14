@@ -1,8 +1,9 @@
-import type { AreaId, BattleState, Enemy, Player } from "./types";
+import type { AreaId, BattleState, Element, Enemy, Player } from "./types";
 import { calculatePlayerDamage } from "./damage";
-import { takeDamage, addExp } from "./player";
+import { takeDamage, addExp, heal } from "./player";
 import { generateWeaponDrop } from "./weapon";
-import { ABNORMAL_EXP_MULTIPLIER } from "./constants";
+import { ABNORMAL_EXP_MULTIPLIER, HEAL_ITEM_RATIO } from "./constants";
+import { removeItem } from "./item";
 
 /** 戦闘開始時の状態を生成する */
 export function createBattleState(player: Player, enemy: Enemy): BattleState {
@@ -14,6 +15,8 @@ export function createBattleState(player: Player, enemy: Enemy): BattleState {
     droppedWeapon: null,
     isGuarding: false,
     guardCounter: false,
+    perfectGuard: false,
+    originalWeaponElement: null,
   };
 }
 
@@ -58,6 +61,16 @@ export function activateGuard(state: BattleState): BattleState {
 export function enemyAttack(state: BattleState): BattleState {
   if (state.result !== "ongoing") return state;
 
+  // 完全防御（古びた鋼鉄の盾）→ ダメージ0 → ガードカウンター発動
+  if (state.perfectGuard) {
+    return {
+      ...state,
+      perfectGuard: false,
+      isGuarding: false,
+      guardCounter: true,
+    };
+  }
+
   // ガード中 → ダメージ1/10（最低1）→ HP最低1保証 → ガードカウンター発動
   if (state.isGuarding) {
     const reducedDamage = state.enemy.atk / 10n || 1n;
@@ -92,6 +105,66 @@ export function checkBattleResult(state: BattleState): BattleState {
   return { ...state, result: "ongoing" };
 }
 
+/** 属性変更アイテム使用（武器の塗料） */
+export function useElementChangeItem(state: BattleState, element: Element): BattleState {
+  if (state.result !== "ongoing") return state;
+
+  const originalElement = state.originalWeaponElement ?? state.player.weapon.element;
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      weapon: { ...state.player.weapon, element },
+      items: removeItem(state.player.items, "elementChange"),
+    },
+    originalWeaponElement: originalElement,
+  };
+}
+
+/** 完全防御アイテム使用（古びた鋼鉄の盾） */
+export function usePerfectGuardItem(state: BattleState): BattleState {
+  if (state.result !== "ongoing") return state;
+
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      items: removeItem(state.player.items, "perfectGuard"),
+    },
+    perfectGuard: true,
+  };
+}
+
+/** 回復アイテム使用（回復の薬） */
+export function useHealItem(state: BattleState): BattleState {
+  if (state.result !== "ongoing") return state;
+
+  const healAmount = BigInt(
+    Math.max(1, Math.floor(Number(state.player.maxHp) * HEAL_ITEM_RATIO))
+  );
+  return {
+    ...state,
+    player: {
+      ...heal(state.player, healAmount),
+      items: removeItem(state.player.items, "heal40"),
+    },
+  };
+}
+
+/** 戦闘終了時に武器属性を元に戻す */
+export function restoreWeaponElement(state: BattleState): BattleState {
+  if (!state.originalWeaponElement) return state;
+
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      weapon: { ...state.player.weapon, element: state.originalWeaponElement },
+    },
+    originalWeaponElement: null,
+  };
+}
+
 /** 勝利時の報酬を処理する */
 export function processBattleRewards(
   state: BattleState,
@@ -110,9 +183,11 @@ export function processBattleRewards(
     gold: player.gold + state.enemy.goldReward,
   };
 
+  // 武器属性を復元してから報酬処理
+  const restored = restoreWeaponElement({ ...state, player });
+
   return {
-    ...state,
-    player,
+    ...restored,
     droppedWeapon: generateWeaponDrop(areaId),
   };
 }

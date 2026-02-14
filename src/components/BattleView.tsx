@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { BattleState, GameState, ElementAdvantage, Weapon } from "@/lib/types";
+import type { BattleState, Element, GameState, ElementAdvantage, ItemType, Weapon } from "@/lib/types";
+import { countItem } from "@/lib/item";
 import { getElementAdvantage, getElementMultiplier } from "@/lib/element";
 import { ElementBadge } from "./ElementBadge";
 import { HpBar } from "./HpBar";
@@ -20,6 +21,18 @@ const ADVANTAGE_DISPLAY: Record<
   neutral: { label: "同属性", className: "text-zinc-400" },
 };
 
+const ELEMENT_LABELS: Record<Element, string> = {
+  water: "水",
+  earth: "土",
+  thunder: "雷",
+};
+
+const ELEMENT_COLORS: Record<Element, string> = {
+  water: "bg-blue-600 active:bg-blue-700",
+  earth: "bg-amber-600 active:bg-amber-700",
+  thunder: "bg-yellow-500 active:bg-yellow-600",
+};
+
 export function BattleView({
   battleState,
   gameState,
@@ -28,6 +41,7 @@ export function BattleView({
   onGuard,
   onChooseWeapon,
   onEndBattle,
+  onUseItem,
 }: {
   battleState: BattleState;
   gameState: GameState;
@@ -36,11 +50,13 @@ export function BattleView({
   onGuard: () => void;
   onChooseWeapon: (weapon: Weapon) => void;
   onEndBattle: () => void;
+  onUseItem: (itemType: ItemType, element?: Element) => void;
 }) {
   const { player, enemy, result } = battleState;
   const attackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
+  const [showElementSelect, setShowElementSelect] = useState(false);
 
   // 敵の自動攻撃（ランダム間隔 + 攻撃前点滅）
   useEffect(() => {
@@ -173,6 +189,70 @@ export function BattleView({
           {battleState.isGuarding ? "ガード中!" : "ガード"}
         </button>
       </div>
+
+      {/* 完全防御インジケーター */}
+      {battleState.perfectGuard && (
+        <div className="rounded-lg border border-cyan-500 bg-cyan-900/40 p-2 text-center text-sm font-bold text-cyan-300">
+          完全防御発動中
+        </div>
+      )}
+
+      {/* アイテムスロット */}
+      {player.items.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {countItem(player.items, "elementChange") > 0 && (
+            <button
+              onClick={() => setShowElementSelect(true)}
+              className="rounded-lg bg-purple-700 px-3 py-2 text-xs font-bold text-white active:bg-purple-800"
+            >
+              武器の塗料 x{countItem(player.items, "elementChange")}
+            </button>
+          )}
+          {countItem(player.items, "perfectGuard") > 0 && (
+            <button
+              onClick={() => onUseItem("perfectGuard")}
+              className="rounded-lg bg-cyan-700 px-3 py-2 text-xs font-bold text-white active:bg-cyan-800"
+            >
+              古びた鋼鉄の盾 x{countItem(player.items, "perfectGuard")}
+            </button>
+          )}
+          {countItem(player.items, "heal40") > 0 && (
+            <button
+              onClick={() => onUseItem("heal40")}
+              className="rounded-lg bg-green-700 px-3 py-2 text-xs font-bold text-white active:bg-green-800"
+            >
+              回復の薬 x{countItem(player.items, "heal40")}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* 属性選択モーダル */}
+      {showElementSelect && (
+        <div className="rounded-lg border border-purple-500 bg-zinc-800 p-4">
+          <p className="mb-3 text-center text-sm text-zinc-300">属性を選択</p>
+          <div className="flex gap-2">
+            {(["water", "earth", "thunder"] as Element[]).map((el) => (
+              <button
+                key={el}
+                onClick={() => {
+                  onUseItem("elementChange", el);
+                  setShowElementSelect(false);
+                }}
+                className={`flex-1 rounded-full py-3 text-sm font-bold text-white ${ELEMENT_COLORS[el]}`}
+              >
+                {ELEMENT_LABELS[el]}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowElementSelect(false)}
+            className="mt-2 w-full text-center text-xs text-zinc-500"
+          >
+            キャンセル
+          </button>
+        </div>
+      )}
     </div>
   );
 }

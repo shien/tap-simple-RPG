@@ -17,6 +17,7 @@ export function createInitialPlayer(): Player {
       element,
       attackBonus: 0n,
     },
+    items: [],
   };
 }
 

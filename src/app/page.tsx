@@ -6,6 +6,7 @@ import { ExplorationView } from "@/components/ExplorationView";
 import { BattlePrepView } from "@/components/BattlePrepView";
 import { BattleView } from "@/components/BattleView";
 import { TreasureSelectView } from "@/components/TreasureSelectView";
+import { ShopView } from "@/components/ShopView";
 import { GameOverView } from "@/components/GameOverView";
 import { GameClearView } from "@/components/GameClearView";
 import { AreaMoveView } from "@/components/AreaMoveView";
@@ -13,7 +14,7 @@ import { StartScreen } from "@/components/StartScreen";
 
 export default function Home() {
   const [started, setStarted] = useState(false);
-  const { gameState, battleState, treasureWeapon, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, confirmAreaMove, chooseTreasureHeal, chooseTreasureWeapon, guard } =
+  const { gameState, battleState, treasureWeapon, shopItems, message, move, attack, enemyAttack, chooseWeapon, endBattle, restart, heal, confirmBattle, confirmAreaMove, chooseTreasureHeal, chooseTreasureWeapon, guard, purchaseItem, leaveShop, useItem } =
     useGameState();
 
   if (!started) {
@@ -53,6 +54,15 @@ export default function Home() {
           />
         )}
 
+        {gameState.phase === "shop" && shopItems && (
+          <ShopView
+            gameState={gameState}
+            shopItems={shopItems}
+            onPurchase={purchaseItem}
+            onLeave={leaveShop}
+          />
+        )}
+
         {gameState.phase === "battle" && battleState && (
           <BattleView
             battleState={battleState}
@@ -62,6 +72,7 @@ export default function Home() {
             onGuard={guard}
             onChooseWeapon={chooseWeapon}
             onEndBattle={endBattle}
+            onUseItem={useItem}
           />
         )}
 

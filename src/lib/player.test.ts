@@ -30,6 +30,11 @@ describe("createInitialPlayer", () => {
     const p = createInitialPlayer();
     expect(["water", "earth", "thunder"]).toContain(p.weapon.element);
   });
+
+  it("アイテムが空配列で初期化される", () => {
+    const p = createInitialPlayer();
+    expect(p.items).toEqual([]);
+  });
 });
 
 describe("getRequiredExp", () => {

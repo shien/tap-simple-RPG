@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { GameState, BattleState, Weapon } from "@/lib/types";
-import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle, processTreasureHeal, processTreasureWeapon, confirmAreaMove as confirmAreaMoveFn } from "@/lib/game";
+import type { GameState, BattleState, Element, ItemType, ShopItem, Weapon } from "@/lib/types";
+import { createNewGame, processEvent, handleBattleVictory, handleDeath, healInPrep, startBattle, processTreasureHeal, processTreasureWeapon, confirmAreaMove as confirmAreaMoveFn, processShopPurchase, processShopLeave } from "@/lib/game";
 import { generateWeaponDrop } from "@/lib/weapon";
 import { advanceStep } from "@/lib/map";
 import { STEPS_PER_AREA } from "@/lib/constants";
@@ -13,14 +13,20 @@ import {
   activateGuard,
   checkBattleResult,
   processBattleRewards,
+  useElementChangeItem,
+  usePerfectGuardItem,
+  useHealItem,
+  restoreWeaponElement,
 } from "@/lib/battle";
 import { generateEnemy, generateBoss } from "@/lib/enemy";
+import { generateShopItems } from "@/lib/item";
 
 /** すべてのゲーム状態を1つにまとめることで画面遷移の原子性を保証する */
 type CombinedState = {
   gameState: GameState;
   battleState: BattleState | null;
   treasureWeapon: Weapon | null;
+  shopItems: ShopItem[] | null;
   message: string | null;
 };
 
@@ -29,6 +35,7 @@ function createInitialState(): CombinedState {
     gameState: createNewGame(),
     battleState: null,
     treasureWeapon: null,
+    shopItems: null,
     message: null,
   };
 }
@@ -55,6 +62,7 @@ export function useGameState() {
           gameState: processed,
           battleState: createBattleState(processed.player, enemy),
           treasureWeapon: null,
+          shopItems: null,
           message: null,
         };
       } else if (processed.phase === "treasureSelect") {
@@ -63,6 +71,15 @@ export function useGameState() {
           gameState: processed,
           battleState: null,
           treasureWeapon: weapon,
+          shopItems: null,
+          message: null,
+        };
+      } else if (processed.phase === "shop") {
+        return {
+          gameState: processed,
+          battleState: null,
+          treasureWeapon: null,
+          shopItems: generateShopItems(stepped.currentArea),
           message: null,
         };
       } else {
@@ -70,6 +87,7 @@ export function useGameState() {
           gameState: processed,
           battleState: null,
           treasureWeapon: null,
+          shopItems: null,
           message: null,
         };
       }
@@ -135,6 +153,7 @@ export function useGameState() {
           gameState: handleBattleVictory(updated),
           battleState: null,
           treasureWeapon: null,
+          shopItems: null,
           message: null,
         };
       } else if (prev.battleState.result === "defeat") {
@@ -142,6 +161,7 @@ export function useGameState() {
           gameState: handleDeath(),
           battleState: null,
           treasureWeapon: null,
+          shopItems: null,
           message: null,
         };
       }
@@ -185,6 +205,7 @@ export function useGameState() {
         gameState: processTreasureHeal(prev.gameState),
         battleState: null,
         treasureWeapon: null,
+        shopItems: null,
         message: null,
       };
     });
@@ -198,6 +219,7 @@ export function useGameState() {
         gameState: processTreasureWeapon(prev.gameState, prev.treasureWeapon),
         battleState: null,
         treasureWeapon: null,
+        shopItems: null,
         message: null,
       };
     });
@@ -214,12 +236,61 @@ export function useGameState() {
     });
   }, []);
 
+  /** ショップ: 購入 */
+  const purchaseItem = useCallback((itemType: ItemType, price: bigint) => {
+    setState((prev) => {
+      if (prev.gameState.phase !== "shop") return prev;
+      return {
+        ...prev,
+        gameState: processShopPurchase(prev.gameState, itemType, price),
+      };
+    });
+  }, []);
+
+  /** ショップ: 立ち去る */
+  const leaveShop = useCallback(() => {
+    setState((prev) => {
+      if (prev.gameState.phase !== "shop") return prev;
+      return {
+        ...prev,
+        gameState: processShopLeave(prev.gameState),
+        shopItems: null,
+      };
+    });
+  }, []);
+
+  /** 戦闘中: アイテム使用 */
+  const useItem = useCallback((itemType: ItemType, element?: Element) => {
+    setState((prev) => {
+      if (!prev.battleState || prev.battleState.result !== "ongoing") return prev;
+
+      let newBattleState: BattleState;
+      switch (itemType) {
+        case "elementChange":
+          if (!element) return prev;
+          newBattleState = useElementChangeItem(prev.battleState, element);
+          break;
+        case "perfectGuard":
+          newBattleState = usePerfectGuardItem(prev.battleState);
+          break;
+        case "heal40":
+          newBattleState = useHealItem(prev.battleState);
+          break;
+        default:
+          return prev;
+      }
+
+      return { ...prev, battleState: newBattleState };
+    });
+  }, []);
+
   /** リスタート */
   const restart = useCallback(() => {
     setState({
       gameState: handleDeath(),
       battleState: null,
       treasureWeapon: null,
+      shopItems: null,
       message: null,
     });
   }, []);
@@ -228,6 +299,7 @@ export function useGameState() {
     gameState: state.gameState,
     battleState: state.battleState,
     treasureWeapon: state.treasureWeapon,
+    shopItems: state.shopItems,
     message: state.message,
     move,
     attack,
@@ -241,5 +313,8 @@ export function useGameState() {
     confirmAreaMove,
     chooseTreasureHeal,
     chooseTreasureWeapon,
+    purchaseItem,
+    leaveShop,
+    useItem,
   };
 }

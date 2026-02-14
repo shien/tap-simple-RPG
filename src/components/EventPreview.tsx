@@ -8,6 +8,7 @@ const EVENT_CONFIG: Record<
   battle: { label: "戦闘", color: "bg-red-900/60 text-red-300" },
   treasure: { label: "宝箱", color: "bg-yellow-900/60 text-yellow-300" },
   boss: { label: "BOSS", color: "bg-red-800 text-red-200 font-bold" },
+  shop: { label: "ショップ", color: "bg-purple-900/60 text-purple-300" },
 };
 
 export function EventPreview({ events }: { events: UpcomingEvent[] }) {

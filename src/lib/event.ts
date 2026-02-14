@@ -13,7 +13,9 @@ export function rollEvent(areaId: AreaId, step: number): EventType {
 
   if (r < table.battle) return "battle";
 
-  return "treasure";
+  if (r < table.battle + table.treasure) return "treasure";
+
+  return "shop";
 }
 
 /** エリアのelementDistributionに従ってランダム属性を選ぶ */

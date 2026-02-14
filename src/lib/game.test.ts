@@ -11,6 +11,8 @@ import {
   processTreasureHeal,
   processTreasureWeapon,
   confirmAreaMove,
+  processShopPurchase,
+  processShopLeave,
 } from "./game";
 import * as mapModule from "./map";
 import type { GameState } from "./types";
@@ -47,6 +49,7 @@ describe("createNewGame", () => {
     expect(state.player.atk).toBe(10n);
     expect(state.player.exp).toBe(0n);
     expect(state.player.gold).toBe(0n);
+    expect(state.player.items).toEqual([]);
     expect(state.currentArea).toBe(1);
     expect(state.currentStep).toBe(1);
     expect(state.phase).toBe("exploration");
@@ -59,7 +62,7 @@ describe("createNewGame", () => {
     expect(state.areaEvents).toHaveLength(STEPS_PER_AREA);
     expect(state.areaEvents[STEPS_PER_AREA - 1].type).toBe("boss");
     for (const ev of state.areaEvents) {
-      expect(["battle", "treasure", "boss"]).toContain(ev.type);
+      expect(["battle", "treasure", "boss", "shop"]).toContain(ev.type);
     }
   });
 
@@ -69,7 +72,7 @@ describe("createNewGame", () => {
     // step=1 → 先読み: step 2,3,4 → 3件
     expect(state.upcomingEvents).toHaveLength(3);
     for (const ev of state.upcomingEvents) {
-      expect(["battle", "treasure", "boss"]).toContain(ev.type);
+      expect(["battle", "treasure", "boss", "shop"]).toContain(ev.type);
     }
   });
 
@@ -136,6 +139,88 @@ describe("processEvent", () => {
     });
   });
 
+  describe("shop", () => {
+    it("shop イベントで phase が 'shop' になる", () => {
+      const state = makeState();
+      getCurrentEventMock.mockReturnValueOnce("shop");
+
+      const after = processEvent(state);
+
+      expect(after.phase).toBe("shop");
+    });
+
+    it("shop イベントで player のステータスが変化しない", () => {
+      const state = makeState();
+      getCurrentEventMock.mockReturnValueOnce("shop");
+
+      const after = processEvent(state);
+
+      expect(after.player.hp).toBe(state.player.hp);
+      expect(after.player.gold).toBe(state.player.gold);
+    });
+  });
+
+});
+
+describe("processShopPurchase", () => {
+  it("ゴールドが十分ならアイテムが追加されゴールドが減る", () => {
+    const state = makeState({ phase: "shop" });
+    state.player = { ...state.player, gold: 100n };
+
+    const after = processShopPurchase({ ...state, player: { ...state.player } }, "heal40", 60n);
+
+    expect(after.player.gold).toBe(40n);
+    expect(after.player.items).toHaveLength(1);
+    expect(after.player.items[0].type).toBe("heal40");
+  });
+
+  it("ゴールドが不足なら変化しない", () => {
+    const state = makeState({ phase: "shop" });
+    state.player = { ...state.player, gold: 10n };
+
+    const after = processShopPurchase({ ...state, player: { ...state.player } }, "heal40", 60n);
+
+    expect(after.player.gold).toBe(10n);
+    expect(after.player.items).toHaveLength(0);
+  });
+
+  it("shop以外のphaseでは変化しない", () => {
+    const state = makeState({ phase: "exploration" });
+    state.player = { ...state.player, gold: 1000n };
+
+    const after = processShopPurchase(state, "heal40", 60n);
+
+    expect(after).toBe(state);
+  });
+
+  it("複数回購入できる", () => {
+    const state = makeState({ phase: "shop" });
+    state.player = { ...state.player, gold: 200n };
+
+    let after = processShopPurchase({ ...state, player: { ...state.player } }, "heal40", 60n);
+    after = processShopPurchase(after, "heal40", 60n);
+
+    expect(after.player.gold).toBe(80n);
+    expect(after.player.items).toHaveLength(2);
+  });
+});
+
+describe("processShopLeave", () => {
+  it("shop → exploration に遷移する", () => {
+    const state = makeState({ phase: "shop" });
+
+    const after = processShopLeave(state);
+
+    expect(after.phase).toBe("exploration");
+  });
+
+  it("shop以外のphaseでは変化しない", () => {
+    const state = makeState({ phase: "exploration" });
+
+    const after = processShopLeave(state);
+
+    expect(after).toBe(state);
+  });
 });
 
 describe("handleBattleVictory", () => {
@@ -244,6 +329,7 @@ describe("handleDeath", () => {
     expect(after.player.hp).toBe(50n);
     expect(after.player.exp).toBe(0n);
     expect(after.player.gold).toBe(0n);
+    expect(after.player.items).toEqual([]);
     expect(after.currentArea).toBe(1);
     expect(after.currentStep).toBe(1);
     expect(after.phase).toBe("exploration");
